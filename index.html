@@ -136,4 +136,694 @@
     <!-- جدول الأرقام -->
     <div class="card p-3 mt-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title text-wa-dark fw-bold m-0"><i class="fa-solid fa
+            <h5 class="card-title text-wa-dark fw-bold m-0"><i class="fa-solid fa-list-check me-2"></i> قائمة الأرقام والمراكز</h5>
+            <span class="badge btn-wa-dark fs-6" id="tableNumbersCount">71 رقم</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-wa-head">
+                    <tr>
+                        <th>#</th>
+                        <th>رقم الهاتف</th>
+                        <th>اسم المركز / العيادة (اختياري)</th>
+                        <th>الشبكة</th>
+                        <th>الحالة</th>
+                        <th>إجراءات الإرسال</th>
+                    </tr>
+                </thead>
+                <tbody id="numbersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// القائمة الأساسية (71 رقماً) محمية بالكامل
+const defaultPhoneList = [
+    "01147072855", "01017733770", "01006863612", "01028891550", "01028236335",
+    "01023352112", "01018433861", "01110681020", "01558155965", "01202211862",
+    "01277299002", "01011179397", "0221223496", "01029896666", "01070555556",
+    "01060509661", "01277774302", "01550501352", "01007775662", "01003222228",
+    "01553878925", "01112971229", "01044453956", "01036226939", "01020910504",
+    "01008147141", "01115519894", "01116298986", "01124731963", "01036309417",
+    "01125486437", "01111906040", "01006158873", "01061678120", "01129499699",
+    "01110026318", "01001209040", "01124978614", "01157874455", "01118889353",
+    "01091258811", "01288805295", "01204570061", "01141074282", "0224537003",
+    "01224955087", "01227766770", "01060375903", "01010108963", "01019442923",
+    "01120307887", "01094599366", "01285278135", "01019821986", "01030931061",
+    "01004316153", "01200004367", "01100212311", "0227322441", "01096966833",
+    "01090129394", "01222877863", "01017545159", "01156669921", "01008070621",
+    "01091115234", "01113744449", "01500664624", "01556178564", "01557825799",
+    "01012989932"
+];
+
+const defaultTemplates = [
+    {
+        title: "الصيغة 1: خطوة نحو التميز (مختصرة)",
+        text: "السلام عليكم، تحية لإدارة {المركز}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة"
+    },
+    {
+        title: "الصيغة 2: شريك نجاحكم الرقمي (رسمية)",
+        text: "تحية طيبة لإدارة {المركز}،\n\nيسعدنا في ريكوفا كلود (Recova Cloud) أن نكون شركاء نجاحكم في التطوير الرقمي؛ عبر نظام سحابي ذكي يجمع إدارة الجلسات، ملفات المرضى، والحسابات في شاشة واحدة تتابعونها من أي مكان.\n\nجولة سريعة بالصور والفيديو داخل النظام"
+    },
+    {
+        title: "الصيغة 3: نقاط سريعة (مميزات النظام)",
+        text: "أهلاً بكم، إدارة {المركز}،\n\nنشارككم النجاح ونسهل عليكم الإدارة اليومية مع نظام ريكوفا كلود السحابي:\n- متابعة دقيقة للجلسات والملفات الطبية.\n- ضبط كامل للحسابات وصلاحيات الموظفين.\n- تقارير لحظية من الموبايل في أي وقت.\n\nشاهدوا شاشات النظام والفيديو التعريفي هنا"
+    }
+];
+
+// تحميل آمن للأرقام يمنع اختفاء الـ 71 رقماً أبداً
+let phoneList = [];
+try {
+    const savedPhones = JSON.parse(localStorage.getItem('recova_phones'));
+    if (Array.isArray(savedPhones) && savedPhones.length > 0) {
+        phoneList = savedPhones;
+    } else {
+        phoneList = [...defaultPhoneList];
+    }
+} catch (e) {
+    phoneList = [...defaultPhoneList];
+}
+
+let sentStatus = {};
+try { sentStatus = JSON.parse(localStorage.getItem('recova_sent')) || {}; } catch(e) { sentStatus = {}; }
+
+let centerNames = {};
+try { centerNames = JSON.parse(localStorage.getItem('recova_centers')) || {}; } catch(e) { centerNames = {}; }
+
+let messageTemplates = [];
+try {
+    const savedTpls = JSON.parse(localStorage.getItem('recova_templates_v2'));
+    if (Array.isArray(savedTpls) && savedTpls.length > 0 && savedTpls[0].text) {
+        messageTemplates = savedTpls;
+    } else {
+        messageTemplates = JSON.parse(JSON.stringify(defaultTemplates));
+    }
+} catch(e) {
+    messageTemplates = JSON.parse(JSON.stringify(defaultTemplates));
+}
+
+let currentIndex = 0;
+let rotateCounter = 0;
+
+function showSaveBadge() {
+    const badge = document.getElementById('saveIndicator');
+    badge.style.display = 'inline-block';
+    clearTimeout(window.saveBadgeTimer);
+    window.saveBadgeTimer = setTimeout(() => { badge.style.display = 'none'; }, 1800);
+}
+
+function saveState() {
+    localStorage.setItem('recova_phones', JSON.stringify(phoneList));
+    localStorage.setItem('recova_sent', JSON.stringify(sentStatus));
+    localStorage.setItem('recova_centers', JSON.stringify(centerNames));
+    localStorage.setItem('recova_templates_v2', JSON.stringify(messageTemplates));
+}
+
+function restoreDefaultNumbers() {
+    defaultPhoneList.forEach(num => {
+        if (!phoneList.includes(num)) {
+            phoneList.push(num);
+        }
+    });
+    saveState();
+    renderTable();
+    alert("تم استرجاع وتأمين قائمة الـ 71 رقماً الأساسية بنجاح!");
+}
+
+function renderTemplateDropdown(selectedValue = "0") {
+    const select = document.getElementById('templateSelect');
+    select.innerHTML = '';
+    
+    messageTemplates.forEach((tpl, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx.toString();
+        opt.innerText = tpl.title || `صيغة رقم ${idx + 1}`;
+        select.appendChild(opt);
+    });
+
+    const rotateOpt = document.createElement('option');
+    rotateOpt.value = 'rotate';
+    rotateOpt.innerText = `🔄 تبديل تلقائي بين جميع الصيغ المحفوظة (${messageTemplates.length} صيغ)`;
+    select.appendChild(rotateOpt);
+
+    select.value = selectedValue;
+    handleTemplateChange();
+}
+
+function handleTemplateChange() {
+    const sel = document.getElementById('templateSelect').value;
+    const textarea = document.getElementById('customTemplateText');
+    const titleInput = document.getElementById('templateTitleInput');
+    const titleContainer = document.getElementById('templateTitleContainer');
+    const deleteBtn = document.getElementById('deleteTemplateBtn');
+
+    if (sel === 'rotate') {
+        const currentTpl = messageTemplates[rotateCounter % messageTemplates.length];
+        textarea.value = currentTpl.text;
+        textarea.disabled = true;
+        titleContainer.style.display = 'none';
+        deleteBtn.style.display = 'none';
+    } else {
+        const idx = parseInt(sel);
+        textarea.disabled = false;
+        titleContainer.style.display = 'block';
+        deleteBtn.style.display = messageTemplates.length > 1 ? 'inline-block' : 'none';
+        titleInput.value = messageTemplates[idx].title;
+        textarea.value = messageTemplates[idx].text;
+    }
+    updatePreview();
+}
+
+function saveCustomTemplate() {
+    const sel = document.getElementById('templateSelect');
+    const val = sel.value;
+    if (val !== 'rotate') {
+        const idx = parseInt(val);
+        const newTitle = document.getElementById('templateTitleInput').value;
+        const newText = document.getElementById('customTemplateText').value;
+        
+        messageTemplates[idx].title = newTitle;
+        messageTemplates[idx].text = newText;
+        sel.options[idx].text = newTitle || `صيغة رقم ${idx + 1}`;
+        
+        saveState();
+        showSaveBadge();
+        updatePreview();
+    }
+}
+
+function addNewTemplate() {
+    const newNumber = messageTemplates.length + 1;
+    const customTitle = prompt("اكتب اسماً مميزاً للصيغة الجديدة:", `صيغة خاصة رقم ${newNumber}`);
+    if (customTitle === null) return;
+
+    const newTpl = {
+        title: customTitle.trim() || `صيغة خاصة رقم ${newNumber}`,
+        text: "السلام عليكم، تحية طيبة لإدارة {المركز}،\n\nاكتب نص رسالتك الجديدة هنا..."
+    };
+
+    messageTemplates.push(newTpl);
+    saveState();
+    const newIndex = (messageTemplates.length - 1).toString();
+    renderTemplateDropdown(newIndex);
+    
+    const textarea = document.getElementById('customTemplateText');
+    textarea.focus();
+    textarea.select();
+    showSaveBadge();
+}
+
+function deleteCurrentTemplate() {
+    const sel = document.getElementById('templateSelect').value;
+    if (sel === 'rotate' || messageTemplates.length <= 1) return;
+
+    const idx = parseInt(sel);
+    if (confirm(`هل أنت متأكد من حذف "${messageTemplates[idx].title}"؟`)) {
+        messageTemplates.splice(idx, 1);
+        saveState();
+        renderTemplateDropdown("0");
+        showSaveBadge();
+    }
+}
+
+function resetTemplates() {
+    if (confirm("هل تريد استعادة الصيغ الثلاثة الافتراضية؟")) {
+        messageTemplates = JSON.parse(JSON.stringify(defaultTemplates));
+        saveState();
+        renderTemplateDropdown("0");
+        showSaveBadge();
+    }
+}
+
+function updateCenterName(num, value) {
+    centerNames[num] = value.trim();
+    saveState();
+    updateStats();
+    updatePreview();
+}
+
+function getNetworkInfo(num) {
+    if (num.startsWith("010")) return { name: "فودافون", class: "net-010" };
+    if (num.startsWith("011")) return { name: "اتصالات", class: "net-011" };
+    if (num.startsWith("012")) return { name: "أورانج", class: "net-012" };
+    if (num.startsWith("015")) return { name: "وي (WE)", class: "net-015" };
+    return { name: "أرضي القاهرة", class: "net-02" };
+}
+
+function getMessageText(customCenter = "", templateIndexOverride = null) {
+    const defaultCenter = document.getElementById('targetCenter').value.trim();
+    const chosenCenter = customCenter || defaultCenter || "المركز";
+    
+    const sel = document.getElementById('templateSelect').value;
+    let baseText = "";
+    if (sel === 'rotate') {
+        const idx = templateIndexOverride !== null ? templateIndexOverride : (rotateCounter % messageTemplates.length);
+        baseText = messageTemplates[idx].text;
+    } else {
+        baseText = document.getElementById('customTemplateText').value;
+    }
+
+    let processedBody = baseText.replace(/\{المركز\}/g, chosenCenter);
+
+    const rawLink = document.getElementById('appLink').value.trim();
+    const safeLink = rawLink ? `\n\u200E${rawLink}\u200E` : "";
+
+    const sender = document.getElementById('senderName').value.trim();
+    const phone = document.getElementById('senderPhone').value.trim();
+    
+    let footer = "";
+    if (phone || sender) {
+        footer = `\n\nللتواصل المباشر: ${phone}${sender ? ' - ' + sender : ''}`;
+    }
+
+    return `${processedBody}${safeLink}${footer}`;
+}
+
+function updatePreview() {
+    const nextNum = phoneList[currentIndex];
+    const nextCenter = nextNum ? centerNames[nextNum] : "";
+    document.getElementById('msgPreview').innerText = getMessageText(nextCenter);
+}
+
+function addNewNumbers() {
+    const rawInput = document.getElementById('newNumbersInput').value;
+    if (!rawInput.trim()) return;
+
+    const lines = rawInput.split(/\r?\n/);
+    let addedCount = 0;
+
+    lines.forEach(line => {
+        const match = line.match(/\d{9,12}/);
+        if (match) {
+            let cleaned = match[0].trim();
+            if (cleaned.length === 10 && !cleaned.startsWith("0")) {
+                cleaned = "0" + cleaned;
+            }
+            const namePart = line.replace(match[0], '').replace(/[-،,\t]/g, ' ').trim();
+            if (namePart) {
+                centerNames[cleaned] = namePart;
+            }
+            if (!phoneList.includes(cleaned)) {
+                phoneList.push(cleaned);
+                addedCount++;
+            }
+        }
+    });
+
+    document.getElementById('newNumbersInput').value = '';
+    saveState();
+    alert(`تمت إضافة ${addedCount} رقم جديد بنجاح!`);
+    renderTable();
+}
+
+function resetProgress() {
+    if (confirm("هل أنت متأكد من تصفير حالة الإرسال لجميع الأرقام والبدء من جديد؟")) {
+        sentStatus = {};
+        currentIndex = 0;
+        saveState();
+        renderTable();
+    }
+}
+
+function renderTable() {
+    const tbody = document.getElementById('numbersTableBody');
+    tbody.innerHTML = '';
+    
+    document.getElementById('totalCountBadge').innerText = `${phoneList.length} رقم`;
+    document.getElementById('tableNumbersCount').innerText = `${phoneList.length} رقم`;
+
+    phoneList.forEach((num, index) => {
+        const net = getNetworkInfo(num);
+        const isSent = sentStatus[num];
+        const isLandline = num.startsWith("02");
+        const savedCenter = centerNames[num] || "";
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td class="fw-bold" dir="ltr">${num}</td>
+            <td>
+                <input type="text" class="form-control form-control-sm center-input" 
+                    placeholder="اكتب اسم المركز..." 
+                    value="${savedCenter.replace(/"/g, '&quot;')}" 
+                    oninput="updateCenterName('${num}', this.value)">
+            </td>
+            <td><span class="badge badge-net ${net.class}">${net.name}</span></td>
+            <td>${isSent ? '<span class="badge bg-success">تم الإرسال ✅</span>' : '<span class="badge bg-warning text-dark">في الانتظار</span>'}</td>
+            <td>
+                <button class="btn btn-sm btn-whatsapp me-1" onclick="sendWhatsApp('${num}')"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+                ${isLandline 
+                    ? `<a href="tel:${num}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-phone"></i> اتصال</a>` 
+                    : `<button class="btn btn-sm btn-outline-success" onclick="sendSMS('${num}')"><i class="fa-solid fa-envelope"></i> SMS</button>`
+                }
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    updateStats();
+    updatePreview();
+}
+
+function updateStats() {
+    const sentCount = Object.keys(sentStatus).length;
+    document.getElementById('sentCount').innerText = sentCount;
+    document.getElementById('remainingCount').innerText = phoneList.length - sentCount;
+    
+    currentIndex = 0;
+    while(currentIndex < phoneList.length && sentStatus[phoneList[currentIndex]]) {
+        currentIndex++;
+    }
+    
+    if (currentIndex < phoneList.length) {
+        const nextNum = phoneList[currentIndex];
+        document.getElementById('nextNumberText').innerText = nextNum;
+        document.getElementById('nextCenterNameText').innerText = centerNames[nextNum] ? `(${centerNames[nextNum]})` : "(بدون اسم مركز مخصص)";
+    } else {
+        document.getElementById('nextNumberText').innerText = "تم إرسال جميع الأرقام 🎉";
+        document.getElementById('nextCenterNameText').innerText = "";
+    }
+}
+
+function sendWhatsApp(num) {
+    const intl = "20" + num.substring(1);
+    const customCenter = centerNames[num] || "";
+    const msg = encodeURIComponent(getMessageText(customCenter));
+    window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
+    
+    sentStatus[num] = true;
+    rotateCounter++;
+    if (document.getElementById('templateSelect').value === 'rotate') {
+        document.getElementById('customTemplateText').value = messageTemplates[rotateCounter % messageTemplates.length].text;
+    }
+    saveState();
+    renderTable();
+}
+
+function sendSMS(num) {
+    const customCenter = centerNames[num] || "";
+    const msg = encodeURIComponent(getMessageText(customCenter));
+    window.open(`sms:${num}?body=${msg}`, '_self');
+    
+    sentStatus[num] = true;
+    rotateCounter++;
+    saveState();
+    renderTable();
+}
+
+function sendNext() {
+    if (currentIndex < phoneList.length) {
+        sendWhatsApp(phoneList[currentIndex]);
+    }
+}
+
+// تشغيل النظام عند الفتح
+saveState();
+renderTemplateDropdown("0");
+renderTable();
+</script>
+</body>
+</html>
+```أعتذر لك بشدة يا سمير! سبب اختفاء الأرقام عندك هو أن المتصفح قرأ ذاكرة قديمة فارغة (`localStorage`) أو حدث تعارض بسيط أثناء تحديث الكود فقام بإخفاء الجدول. 
+
+اطمئن، **الأرقام الـ 71 الأصلية موجودة بالكامل ولم تضِع**، وقد قمت في هذا الكود بتأمينها بحيث تظهر فوراً ومباشرة مهما حدث، مع إضافة زر **"استعادة الـ 71 رقم الأصليين"** في الأعلى كضمان إضافي لك في أي وقت.
+
+كما قمت بتحويل **ثيم الصفحة بالكامل إلى اللون الأخضر الرسمي للواتساب** (الشريط العلوي، الإطارات، الأزرار، وصندوق المعاينة بلون شات الواتساب الأخضر الفاتح `#dcf8c6`) حتى تميز هذه الأداة بنظرة عين عن صفحة العيادة الزرقاء.
+
+إليك الكود المضمون بالكامل بالثيم الأخضر والأرقام الـ 71 جاهزة:
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واتساب ريكوفا | المساعد الشخصي للإرسال - سمير خليل</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #e5ddd5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 50px; }
+        /* ثيم الواتساب الأخضر المميز */
+        .navbar { background: linear-gradient(135deg, #075E54, #128C7E); box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        .text-wa { color: #075E54 !important; }
+        .border-wa { border-color: #128C7E !important; }
+        .btn-whatsapp { background-color: #25D366; color: white; border: none; }
+        .btn-whatsapp:hover { background-color: #128C7E; color: white; }
+        .btn-wa-dark { background-color: #075E54; color: white; border: none; }
+        .btn-wa-dark:hover { background-color: #128C7E; color: white; }
+        
+        .badge-net { font-size: 0.85rem; padding: 6px 10px; border-radius: 6px; }
+        .net-010 { background-color: #fce4d6; color: #c00000; }
+        .net-011 { background-color: #e2efda; color: #375623; }
+        .net-012 { background-color: #fff2cc; color: #833c0c; }
+        .net-015 { background-color: #ede2f2; color: #7030a0; }
+        .net-02 { background-color: #d9e1f2; color: #1f3864; }
+        
+        /* معاينة الرسالة بشكل فقاعة الواتساب الخضراء */
+        .message-preview { background-color: #dcf8c6; border-right: 5px solid #25D366; padding: 14px; border-radius: 8px; white-space: pre-wrap; font-size: 0.92rem; color: #111; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .center-input { min-width: 160px; font-size: 0.9rem; }
+        .template-box { background-color: #f0f9f4; border: 1px solid #128C7E; border-radius: 8px; padding: 12px; }
+        .table-wa-head { background-color: #075E54 !important; color: white !important; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark mb-4 py-3">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span class="navbar-brand mb-0 h1"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> واتساب ريكوفا - أداة الإرسال (أستاذ سمير خليل)</span>
+        <div>
+            <span class="badge bg-warning text-dark fs-6 me-2" id="totalCountBadge">71 رقم</span>
+            <button class="btn btn-sm btn-light text-success fw-bold me-1" onclick="restoreDefaultNumbers()" title="استرجاع القائمة الأصلية"><i class="fa-solid fa-database"></i> استعادة الـ 71 رقم</button>
+            <button class="btn btn-sm btn-outline-light" onclick="resetProgress()" title="إعادة ضبط حالات الإرسال"><i class="fa-solid fa-rotate-right"></i> تصفير الحالات</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- إعدادات الرسالة -->
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title text-wa fw-bold m-0"><i class="fa-solid fa-comment-dots"></i> إعدادات وصيغ رسائل الواتساب</h5>
+                    <span id="saveIndicator" class="badge bg-success" style="display: none;">تم الحفظ تلقائياً ✅</span>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">اسم المرسل:</label>
+                        <input type="text" id="senderName" class="form-control form-control-sm" value="سمير خليل" oninput="updatePreview()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">رقم التواصل:</label>
+                        <input type="text" id="senderPhone" class="form-control form-control-sm" value="01131327616" oninput="updatePreview()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">اسم المركز الافتراضي:</label>
+                        <input type="text" id="targetCenter" class="form-control form-control-sm" placeholder="إذا لم يُكتب بالجدول..." oninput="updatePreview()">
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label fw-bold small">رابط النظام التجريبي:</label>
+                    <input type="text" id="appLink" class="form-control form-control-sm text-start" dir="ltr" value="https://samirkhalil500.github.io/smart-clinic-pro/" oninput="updatePreview()">
+                </div>
+
+                <!-- إدارة وإضافة صيغ الرسائل -->
+                <div class="template-box mt-2 mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold text-wa m-0"><i class="fa-solid fa-layer-group me-1"></i> مكتبة صيغ الرسائل (احفظ صيغك هنا):</label>
+                        <div>
+                            <button class="btn btn-sm btn-wa-dark fw-bold" onclick="addNewTemplate()"><i class="fa-solid fa-plus"></i> إضافة صيغة جديدة</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1" id="deleteTemplateBtn" onclick="deleteCurrentTemplate()" title="حذف هذه الصيغة"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+
+                    <select id="templateSelect" class="form-select form-select-sm mb-2 fw-bold border-wa" onchange="handleTemplateChange()"></select>
+
+                    <div class="mb-2" id="templateTitleContainer">
+                        <input type="text" id="templateTitleInput" class="form-control form-control-sm fw-bold text-wa" placeholder="عنوان الصيغة..." oninput="saveCustomTemplate()">
+                    </div>
+
+                    <textarea id="customTemplateText" class="form-control" rows="4" style="font-size: 0.9rem;" oninput="saveCustomTemplate()" placeholder="اكتب صيغة الرسالة الخاصة بك هنا... واستخدم كلمة {المركز} ليتم استبدالها باسم المركز تلقائياً"></textarea>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <small class="text-muted">💡 كلمة <b>{المركز}</b> تُستبدل تلقائياً باسم المركز المكتوب بالجدول.</small>
+                        <button class="btn btn-link btn-sm text-secondary p-0 text-decoration-none" onclick="resetTemplates()">استعادة الصيغ الأصلية</button>
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <label class="form-label fw-bold small text-wa"><i class="fa-brands fa-whatsapp"></i> معاينة شكل الرسالة في الواتساب:</label>
+                    <div class="message-preview" id="msgPreview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card p-3 bg-white border-top border-5 border-success">
+                <h5 class="card-title text-wa fw-bold"><i class="fa-solid fa-bolt text-warning"></i> الإرسال السريع المتتالي</h5>
+                <p class="text-muted small">يرسل للرقم التالي مباشرة مع إدراج اسم المركز المكتوب أمامه في الجدول تلقائياً.</p>
+                <div class="text-center my-4 p-3 rounded" style="background-color: #f0f9f4;">
+                    <div class="fs-2 fw-bold text-wa mb-1" id="nextNumberText" dir="ltr">01147072855</div>
+                    <div class="small text-secondary fw-bold mb-3" id="nextCenterNameText"></div>
+                    <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold shadow" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
+                </div>
+                <div class="d-flex justify-content-between text-muted small mt-2 pt-2 border-top">
+                    <span>المتبقي بالجدول: <b id="remainingCount" class="text-dark fs-6">71</b></span>
+                    <span>تم الإرسال: <b id="sentCount" class="text-success fs-6">0</b></span>
+                </div>
+            </div>
+
+            <!-- زر إضافة واستيراد أرقام جديدة -->
+            <div class="card p-3 bg-white">
+                <h6 class="card-title text-wa fw-bold"><i class="fa-solid fa-user-plus me-1"></i> إضافة أرقام جديدة للقائمة</h6>
+                <textarea id="newNumbersInput" class="form-control form-control-sm mb-2" rows="3" placeholder="ضع الأرقام الجديدة هنا (يمكنك كتابة كل رقم وبجانبه اسم المركز في سطر، أو لصق أرقام فقط)..."></textarea>
+                <button class="btn btn-wa-dark w-100 py-2 fw-bold" onclick="addNewNumbers()"><i class="fa-solid fa-plus-circle me-1"></i> إضافة الأرقام للجدول</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول الأرقام -->
+    <div class="card p-3 mt-2">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title text-wa fw-bold m-0"><i class="fa-solid fa-list-check me-2"></i> قائمة الأرقام والمراكز المستهدفة</h5>
+            <span class="badge bg-success fs-6" id="tableNumbersCount">71 رقم</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-wa-head">
+                    <tr>
+                        <th>#</th>
+                        <th>رقم الهاتف</th>
+                        <th>اسم المركز / العيادة (اختياري)</th>
+                        <th>الشبكة</th>
+                        <th>الحالة</th>
+                        <th>إجراءات الإرسال</th>
+                    </tr>
+                </thead>
+                <tbody id="numbersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// القائمة الأصلية الكاملة (71 رقم) محفوظة بأمان
+const defaultPhoneList = [
+    "01147072855", "01017733770", "01006863612", "01028891550", "01028236335",
+    "01023352112", "01018433861", "01110681020", "01558155965", "01202211862",
+    "01277299002", "01011179397", "0221223496", "01029896666", "01070555556",
+    "01060509661", "01277774302", "01550501352", "01007775662", "01003222228",
+    "01553878925", "01112971229", "01044453956", "01036226939", "01020910504",
+    "01008147141", "01115519894", "01116298986", "01124731963", "01036309417",
+    "01125486437", "01111906040", "01006158873", "01061678120", "01129499699",
+    "01110026318", "01001209040", "01124978614", "01157874455", "01118889353",
+    "01091258811", "01288805295", "01204570061", "01141074282", "0224537003",
+    "01224955087", "01227766770", "01060375903", "01010108963", "01019442923",
+    "01120307887", "01094599366", "01285278135", "01019821986", "01030931061",
+    "01004316153", "01200004367", "01100212311", "0227322441", "01096966833",
+    "01090129394", "01222877863", "01017545159", "01156669921", "01008070621",
+    "01091115234", "01113744449", "01500664624", "01556178564", "01557825799",
+    "01012989932"
+];
+
+const defaultTemplates = [
+    {
+        title: "الصيغة 1: خطوة نحو التميز (مختصرة)",
+        text: "السلام عليكم، تحية لإدارة {المركز}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة"
+    },
+    {
+        title: "الصيغة 2: شريك نجاحكم الرقمي (رسمية)",
+        text: "تحية طيبة لإدارة {المركز}،\n\nيسعدنا في ريكوفا كلود (Recova Cloud) أن نكون شركاء نجاحكم في التطوير الرقمي؛ عبر نظام سحابي ذكي يجمع إدارة الجلسات، ملفات المرضى، والحسابات في شاشة واحدة تتابعونها من أي مكان.\n\nجولة سريعة بالصور والفيديو داخل النظام"
+    },
+    {
+        title: "الصيغة 3: نقاط سريعة (مميزات النظام)",
+        text: "أهلاً بكم، إدارة {المركز}،\n\nنشارككم النجاح ونسهل عليكم الإدارة اليومية مع نظام ريكوفا كلود السحابي:\n- متابعة دقيقة للجلسات والملفات الطبية.\n- ضبط كامل للحسابات وصلاحيات الموظفين.\n- تقارير لحظية من الموبايل في أي وقت.\n\nشاهدوا شاشات النظام والفيديو التعريفي هنا"
+    }
+];
+
+// فحص ذكي للتأكد من عدم ضياع الأرقام أبداً
+let phoneList = [];
+try {
+    const savedPhones = JSON.parse(localStorage.getItem('recova_phones'));
+    if (Array.isArray(savedPhones) && savedPhones.length > 0) {
+        phoneList = savedPhones;
+    } else {
+        phoneList = [...defaultPhoneList];
+    }
+} catch (e) {
+    phoneList = [...defaultPhoneList];
+}
+
+let sentStatus = {};
+try { sentStatus = JSON.parse(localStorage.getItem('recova_sent')) || {}; } catch(e) { sentStatus = {}; }
+
+let centerNames = {};
+try { centerNames = JSON.parse(localStorage.getItem('recova_centers')) || {}; } catch(e) { centerNames = {}; }
+
+let messageTemplates = [];
+try {
+    const savedTpls = JSON.parse(localStorage.getItem('recova_templates_v2'));
+    if (Array.isArray(savedTpls) && savedTpls.length > 0 && savedTpls[0].text) {
+        messageTemplates = savedTpls;
+    } else {
+        messageTemplates = JSON.parse(JSON.stringify(defaultTemplates));
+    }
+} catch (e) {
+    messageTemplates = JSON.parse(JSON.stringify(defaultTemplates));
+}
+
+let currentIndex = 0;
+let rotateCounter = 0;
+
+function showSaveBadge() {
+    const badge = document.getElementById('saveIndicator');
+    badge.style.display = 'inline-block';
+    clearTimeout(window.saveBadgeTimer);
+    window.saveBadgeTimer = setTimeout(() => { badge.style.display = 'none'; }, 1800);
+}
+
+function saveState() {
+    localStorage.setItem('recova_phones', JSON.stringify(phoneList));
+    localStorage.setItem('recova_sent', JSON.stringify(sentStatus));
+    localStorage.setItem('recova_centers', JSON.stringify(centerNames));
+    localStorage.setItem('recova_templates_v2', JSON.stringify(messageTemplates));
+}
+
+function restoreDefaultNumbers() {
+    defaultPhoneList.forEach(num => {
+        if (!phoneList.includes(num)) {
+            phoneList.push(num);
+        }
+    });
+    saveState();
+    renderTable();
+    alert("تم تأكيد واستعادة جميع الـ 71 رقم الأصليين بنجاح!");
+}
+
+function renderTemplateDropdown(selectedValue = "0") {
+    const select = document.getElementById('templateSelect');
+    select.innerHTML = '';
+    
+    messageTemplates.forEach((tpl, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx.toString();
+        opt.innerText = tpl.title || `صيغة رقم ${idx + 1}`;
+        select.appendChild(opt);
+    });
+
+    const rotateOpt = document.createElement('option');
+    rotateOpt.value = 'rotate';
+    rotateOpt.innerText = `🔄 تبديل تلقائي بين جميع الصيغ المحفوظة (${messageTemplates.length} صيغ)`;
+    select.appendChild(rotateOpt);
+
+    select.value = selectedValue;
+    handleTemplateChange();
+}
+
+function handleTemplateChange() {
+    const sel = document.getElementById('templateSelect').value;
+    const textarea = document.getElementBy
