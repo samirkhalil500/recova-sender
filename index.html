@@ -3,34 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة ريكوفا | المساعد الشخصي للإرسال - سمير خليل</title>
+    <title>واتساب ريكوفا | المساعد الشخصي للإرسال - سمير خليل</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 50px; }
-        .navbar { background: linear-gradient(135deg, #1f3864, #2c4d82); }
-        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .btn-whatsapp { background-color: #25D366; color: white; }
-        .btn-whatsapp:hover { background-color: #1da851; color: white; }
+        /* ثيم الواتساب الأخضر الكامل */
+        body { background-color: #e5ddd5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 50px; }
+        .navbar { background: linear-gradient(135deg, #075e54, #128c7e); box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        .text-wa-dark { color: #075e54 !important; }
+        .border-wa { border-color: #128c7e !important; }
+        .btn-whatsapp { background-color: #25D366; color: white; border: none; }
+        .btn-whatsapp:hover { background-color: #128c7e; color: white; }
+        .btn-wa-dark { background-color: #075e54; color: white; }
+        .btn-wa-dark:hover { background-color: #128c7e; color: white; }
+        .table-wa-head { background-color: #075e54 !important; color: white; }
         .badge-net { font-size: 0.85rem; padding: 6px 10px; border-radius: 6px; }
         .net-010 { background-color: #fce4d6; color: #c00000; }
         .net-011 { background-color: #e2efda; color: #375623; }
         .net-012 { background-color: #fff2cc; color: #833c0c; }
         .net-015 { background-color: #ede2f2; color: #7030a0; }
         .net-02 { background-color: #d9e1f2; color: #1f3864; }
-        .message-preview { background-color: #e9ecef; border-right: 4px solid #1f3864; padding: 12px; border-radius: 6px; white-space: pre-wrap; font-size: 0.9rem; }
+        .message-preview { background-color: #dcf8c6; border-right: 4px solid #075e54; padding: 12px; border-radius: 8px; white-space: pre-wrap; font-size: 0.9rem; color: #111; }
         .center-input { min-width: 160px; font-size: 0.9rem; }
-        .template-box { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; }
+        .template-box { background-color: #f0f4f1; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-dark mb-4 py-3">
     <div class="container">
-        <span class="navbar-brand mb-0 h1"><i class="fa-solid fa-paper-plane me-2"></i> منصة ريكوفا - النسخة الشخصية (أستاذ سمير خليل)</span>
-        <div>
-            <span class="badge bg-light text-dark fs-6 me-2" id="totalCountBadge">71 رقم</span>
-            <button class="btn btn-sm btn-outline-light" onclick="resetProgress()" title="إعادة ضبط حالات الإرسال"><i class="fa-solid fa-rotate-right"></i> تصفير الحالات</button>
+        <span class="navbar-brand mb-0 h1"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> واتساب ريكوفا - منصة الإرسال (أستاذ سمير خليل)</span>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-white text-wa-dark fs-6" id="totalCountBadge">71 رقم</span>
+            <button class="btn btn-sm btn-warning fw-bold" onclick="restoreDefaultNumbers()" title="استرجاع الـ 71 رقماً الأساسية"><i class="fa-solid fa-database"></i> استعادة الـ 71 رقم</button>
+            <button class="btn btn-sm btn-outline-light" onclick="resetProgress()" title="تصفير حالة الإرسال"><i class="fa-solid fa-rotate-right"></i> تصفير الحالات</button>
         </div>
     </div>
 </nav>
@@ -41,7 +48,7 @@
         <div class="col-md-7">
             <div class="card p-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="card-title text-primary m-0"><i class="fa-solid fa-comment-dots"></i> إعدادات وصيغ الرسائل</h5>
+                    <h5 class="card-title text-wa-dark fw-bold m-0"><i class="fa-solid fa-comment-dots"></i> إعدادات وصيغ رسائل الواتساب</h5>
                     <span id="saveIndicator" class="badge bg-success" style="display: none;">تم الحفظ تلقائياً ✅</span>
                 </div>
 
@@ -68,45 +75,45 @@
                 <!-- إدارة وإضافة صيغ الرسائل -->
                 <div class="template-box mt-2 mb-2">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label fw-bold text-dark m-0"><i class="fa-solid fa-layer-group text-primary me-1"></i> مكتبة صيغ الرسائل الخاصة بك:</label>
+                        <label class="form-label fw-bold text-wa-dark m-0"><i class="fa-solid fa-layer-group me-1"></i> مكتبة صيغ الرسائل الخاصة بك:</label>
                         <div>
-                            <button class="btn btn-sm btn-success fw-bold" onclick="addNewTemplate()"><i class="fa-solid fa-plus"></i> إضافة صيغة جديدة</button>
+                            <button class="btn btn-sm btn-wa-dark fw-bold" onclick="addNewTemplate()"><i class="fa-solid fa-plus"></i> إضافة صيغة جديدة</button>
                             <button class="btn btn-sm btn-outline-danger ms-1" id="deleteTemplateBtn" onclick="deleteCurrentTemplate()" title="حذف هذه الصيغة"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
 
-                    <select id="templateSelect" class="form-select form-select-sm mb-2 fw-bold border-primary" onchange="handleTemplateChange()"></select>
+                    <select id="templateSelect" class="form-select form-select-sm mb-2 fw-bold border-wa" onchange="handleTemplateChange()"></select>
 
                     <div class="mb-2" id="templateTitleContainer">
-                        <input type="text" id="templateTitleInput" class="form-control form-control-sm fw-bold text-primary" placeholder="عنوان الصيغة (مثلاً: صيغة مراكز العلاج الطبيعي)..." oninput="saveCustomTemplate()">
+                        <input type="text" id="templateTitleInput" class="form-control form-control-sm fw-bold text-wa-dark" placeholder="عنوان الصيغة..." oninput="saveCustomTemplate()">
                     </div>
 
                     <textarea id="customTemplateText" class="form-control font-monospace" rows="4" style="font-size: 0.9rem;" oninput="saveCustomTemplate()" placeholder="اكتب صيغة الرسالة الخاصة بك هنا... واستخدم كلمة {المركز} ليتم استبدالها باسم المركز تلقائياً"></textarea>
                     
                     <div class="d-flex justify-content-between align-items-center mt-1">
                         <small class="text-muted">💡 استخدم <b>{المركز}</b> ليُكتب مكانها اسم المركز تلقائياً.</small>
-                        <button class="btn btn-link btn-sm text-secondary p-0 text-decoration-none" onclick="resetTemplates()">استعادة الافتراضي</button>
+                        <button class="btn btn-link btn-sm text-secondary p-0 text-decoration-none" onclick="resetTemplates()">استعادة الصيغ الافتراضية</button>
                     </div>
                 </div>
 
                 <div class="mt-2">
-                    <label class="form-label fw-bold small text-secondary">المعاينة النهائية للرسالة القادمة:</label>
+                    <label class="form-label fw-bold small text-wa-dark">المعاينة النهائية للرسالة (كما ستظهر في واتساب):</label>
                     <div class="message-preview" id="msgPreview"></div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-5">
-            <div class="card p-3 bg-white">
-                <h5 class="card-title text-success"><i class="fa-solid fa-bolt"></i> الإرسال السريع المتتالي</h5>
+            <div class="card p-3 bg-white border-top border-5 border-success">
+                <h5 class="card-title text-wa-dark fw-bold"><i class="fa-solid fa-bolt text-warning"></i> الإرسال السريع المتتالي</h5>
                 <p class="text-muted small">يرسل للرقم التالي مباشرة مع إدراج اسم المركز المكتوب أمامه في الجدول تلقائياً.</p>
                 <div class="text-center my-4">
-                    <div class="fs-3 fw-bold text-dark mb-1" id="nextNumberText" dir="ltr">01147072855</div>
-                    <div class="small text-primary fw-bold mb-3" id="nextCenterNameText"></div>
-                    <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold shadow-sm" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
+                    <div class="fs-2 fw-bold text-wa-dark mb-1" id="nextNumberText" dir="ltr">01147072855</div>
+                    <div class="small text-success fw-bold mb-3" id="nextCenterNameText"></div>
+                    <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold shadow" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
                 </div>
                 <div class="d-flex justify-content-between text-muted small mt-2 pt-2 border-top">
-                    <span>المتبقي بالجدول: <b id="remainingCount">71</b></span>
+                    <span>المتبقي بالجدول: <b id="remainingCount" class="text-dark">71</b></span>
                     <span>تم الإرسال: <b id="sentCount" class="text-success">0</b></span>
                 </div>
             </div>
@@ -114,14 +121,14 @@
     </div>
 
     <!-- زر إضافة واستيراد أرقام جديدة -->
-    <div class="card p-3 bg-light border-primary">
-        <h5 class="card-title text-primary"><i class="fa-solid fa-user-plus me-2"></i> إضافة / استيراد أرقام جديدة بالقائمة</h5>
+    <div class="card p-3 bg-white">
+        <h5 class="card-title text-wa-dark fw-bold"><i class="fa-solid fa-user-plus me-2"></i> إضافة / استيراد أرقام جديدة بالقائمة</h5>
         <div class="row g-2 align-items-center">
             <div class="col-md-9">
                 <textarea id="newNumbersInput" class="form-control" rows="2" placeholder="ضع الأرقام الجديدة هنا (يمكنك كتابة كل رقم وبجانبه اسم المركز في سطر، أو لصق أرقام فقط)..."></textarea>
             </div>
             <div class="col-md-3">
-                <button class="btn btn-primary w-100 py-3 fw-bold" onclick="addNewNumbers()"><i class="fa-solid fa-plus-circle me-1"></i> إضافة للقائمة</button>
+                <button class="btn btn-wa-dark w-100 py-3 fw-bold" onclick="addNewNumbers()"><i class="fa-solid fa-plus-circle me-1"></i> إضافة للقائمة</button>
             </div>
         </div>
     </div>
@@ -129,50 +136,4 @@
     <!-- جدول الأرقام -->
     <div class="card p-3 mt-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title text-dark m-0"><i class="fa-solid fa-list-check me-2"></i> قائمة الأرقام والمراكز</h5>
-            <span class="badge bg-secondary" id="tableNumbersCount">71 رقم</span>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>رقم الهاتف</th>
-                        <th>اسم المركز / العيادة (اختياري)</th>
-                        <th>الشبكة</th>
-                        <th>الحالة</th>
-                        <th>إجراءات الإرسال</th>
-                    </tr>
-                </thead>
-                <tbody id="numbersTableBody"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script>
-const defaultPhoneList = [
-    "01147072855", "01017733770", "01006863612", "01028891550", "01028236335",
-    "01023352112", "01018433861", "01110681020", "01558155965", "01202211862",
-    "01277299002", "01011179397", "0221223496", "01029896666", "01070555556",
-    "01060509661", "01277774302", "01550501352", "01007775662", "01003222228",
-    "01553878925", "01112971229", "01044453956", "01036226939", "01020910504",
-    "01008147141", "01115519894", "01116298986", "01124731963", "01036309417",
-    "01125486437", "01111906040", "01006158873", "01061678120", "01129499699",
-    "01110026318", "01001209040", "01124978614", "01157874455", "01118889353",
-    "01091258811", "01288805295", "01204570061", "01141074282", "0224537003",
-    "01224955087", "01227766770", "01060375903", "01010108963", "01019442923",
-    "01120307887", "01094599366", "01285278135", "01019821986", "01030931061",
-    "01004316153", "01200004367", "01100212311", "0227322441", "01096966833",
-    "01090129394", "01222877863", "01017545159", "01156669921", "01008070621",
-    "01091115234", "01113744449", "01500664624", "01556178564", "01557825799",
-    "01012989932"
-];
-
-const defaultTemplates = [
-    {
-        title: "الصيغة 1: خطوة نحو التميز (مختصرة)",
-        text: "السلام عليكم، تحية لإدارة {المركز}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة"
-    },
-    {
-        title: "الصيغة 2: شريك نجاحكم
+            <h5 class="card-title text-wa-dark fw-bold m-0"><i class="fa-solid fa
