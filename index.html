@@ -241,7 +241,48 @@ function renderTemplateDropdown(selectedValue = "0") {
 
     const rotateOpt = document.createElement('option');
     rotateOpt.value = 'rotate';
-    rotateOpt.innerText = `🔄 تبديل تلقائي بين جميع الصيغ المحفوظة (${messageTemplates.length} صيغ)`; select.appendChild(rotateOpt);  select.value = selectedValue; handleTemplateChange(); }  function handleTemplateChange() { const sel = document.getElementById('templateSelect').value; const textarea = document.getElementById('customTemplateText'); const titleInput = document.getElementById('templateTitleInput'); const titleContainer = document.getElementById('templateTitleContainer'); const deleteBtn = document.getElementById('deleteTemplateBtn');  if (sel === 'rotate') { const currentTpl = messageTemplates[rotateCounter \% messageTemplates.length]; textarea.value = currentTpl.text; textarea.disabled = true; titleContainer.style.display = 'none'; deleteBtn.style.display = 'none'; } else { const idx = parseInt(sel); textarea.disabled = false; titleContainer.style.display = 'block'; deleteBtn.style.display = messageTemplates.length > 1 ? 'inline-block' : 'none'; titleInput.value = messageTemplates[idx].title; textarea.value = messageTemplates[idx].text; } updatePreview(); }  function saveCustomTemplate() { const sel = document.getElementById('templateSelect'); const val = sel.value; if (val !== 'rotate') { const idx = parseInt(val); const newTitle = document.getElementById('templateTitleInput').value; const newText = document.getElementById('customTemplateText').value;  messageTemplates[idx].title = newTitle; messageTemplates[idx].text = newText; sel.options[idx].text = newTitle \vert{}\vert{} `صيغة رقم ${idx + 1}`;
+    rotateOpt.innerText = `🔄 تبديل تلقائي بين جميع الصيغ المحفوظة (${messageTemplates.length} صيغ)`;
+    select.appendChild(rotateOpt);
+
+    select.value = selectedValue;
+    handleTemplateChange();
+}
+
+function handleTemplateChange() {
+    const sel = document.getElementById('templateSelect').value;
+    const textarea = document.getElementById('customTemplateText');
+    const titleInput = document.getElementById('templateTitleInput');
+    const titleContainer = document.getElementById('templateTitleContainer');
+    const deleteBtn = document.getElementById('deleteTemplateBtn');
+
+    if (sel === 'rotate') {
+        const currentTpl = messageTemplates[rotateCounter % messageTemplates.length];
+        textarea.value = currentTpl.text;
+        textarea.disabled = true;
+        titleContainer.style.display = 'none';
+        deleteBtn.style.display = 'none';
+    } else {
+        const idx = parseInt(sel);
+        textarea.disabled = false;
+        titleContainer.style.display = 'block';
+        deleteBtn.style.display = messageTemplates.length > 1 ? 'inline-block' : 'none';
+        titleInput.value = messageTemplates[idx].title;
+        textarea.value = messageTemplates[idx].text;
+    }
+    updatePreview();
+}
+
+function saveCustomTemplate() {
+    const sel = document.getElementById('templateSelect');
+    const val = sel.value;
+    if (val !== 'rotate') {
+        const idx = parseInt(val);
+        const newTitle = document.getElementById('templateTitleInput').value;
+        const newText = document.getElementById('customTemplateText').value;
+        
+        messageTemplates[idx].title = newTitle;
+        messageTemplates[idx].text = newText;
+        sel.options[idx].text = newTitle || `صيغة رقم ${idx + 1}`;
         
         saveState();
         showSaveBadge();
@@ -251,7 +292,11 @@ function renderTemplateDropdown(selectedValue = "0") {
 
 function addNewTemplate() {
     const newNumber = messageTemplates.length + 1;
-    const customTitle = prompt("اكتب اسماً مميزاً للصيغة الجديدة:", `صيغة خاصة رقم ${newNumber}`); if (customTitle === null) return;  messageTemplates.push({ title: customTitle.trim() \vert{}\vert{} `صيغة خاصة رقم ${newNumber}`,
+    const customTitle = prompt("اكتب اسماً مميزاً للصيغة الجديدة:", `صيغة خاصة رقم ${newNumber}`);
+    if (customTitle === null) return;
+
+    messageTemplates.push({
+        title: customTitle.trim() || `صيغة خاصة رقم ${newNumber}`,
         text: "السلام عليكم، تحية طيبة لإدارة {المركز}،\n\nاكتب نص رسالتك الجديدة هنا..."
     });
     saveState();
@@ -268,13 +313,92 @@ function deleteCurrentTemplate() {
     if (sel === 'rotate' || messageTemplates.length <= 1) return;
 
     const idx = parseInt(sel);
-    if (confirm(`هل أنت متأكد من حذف "${messageTemplates[idx].title}"؟`)) { messageTemplates.splice(idx, 1); saveState(); renderTemplateDropdown("0"); showSaveBadge(); } }  function resetTemplates() { if (confirm("هل تريد استعادة الصيغ الثلاثة الافتراضية؟")) { messageTemplates = JSON.parse(JSON.stringify(defaultTemplates)); saveState(); renderTemplateDropdown("0"); showSaveBadge(); } }  function updateCenterName(num, value) { centerNames[num] = value.trim(); saveState(); updateStats(); updatePreview(); }  function getNetworkInfo(num) { if (num.startsWith("010")) return { name: "فودافون", class: "net-010" }; if (num.startsWith("011")) return { name: "اتصالات", class: "net-011" }; if (num.startsWith("012")) return { name: "أورانج", class: "net-012" }; if (num.startsWith("015")) return { name: "وي (WE)", class: "net-015" }; return { name: "أرضي القاهرة", class: "net-02" }; }  function getMessageText(customCenter = "", templateIndexOverride = null) { const defaultCenter = document.getElementById('targetCenter').value.trim(); const chosenCenter = customCenter \vert{}\vert{} defaultCenter \vert{}\vert{} "المركز";  const sel = document.getElementById('templateSelect').value; let baseText = ""; if (sel === 'rotate') { const idx = templateIndexOverride !== null ? templateIndexOverride : (rotateCounter \% messageTemplates.length); baseText = messageTemplates[idx].text; } else { baseText = document.getElementById('customTemplateText').value; }  let processedBody = baseText.replace(/\{المركز\}/g, chosenCenter); const rawLink = document.getElementById('appLink').value.trim(); const safeLink = rawLink ? `\n\u200E${rawLink}\u200E` : "";
+    if (confirm(`هل أنت متأكد من حذف "${messageTemplates[idx].title}"؟`)) {
+        messageTemplates.splice(idx, 1);
+        saveState();
+        renderTemplateDropdown("0");
+        showSaveBadge();
+    }
+}
+
+function resetTemplates() {
+    if (confirm("هل تريد استعادة الصيغ الثلاثة الافتراضية؟")) {
+        messageTemplates = JSON.parse(JSON.stringify(defaultTemplates));
+        saveState();
+        renderTemplateDropdown("0");
+        showSaveBadge();
+    }
+}
+
+function updateCenterName(num, value) {
+    centerNames[num] = value.trim();
+    saveState();
+    updateStats();
+    updatePreview();
+}
+
+function getNetworkInfo(num) {
+    if (num.startsWith("010")) return { name: "فودافون", class: "net-010" };
+    if (num.startsWith("011")) return { name: "اتصالات", class: "net-011" };
+    if (num.startsWith("012")) return { name: "أورانج", class: "net-012" };
+    if (num.startsWith("015")) return { name: "وي (WE)", class: "net-015" };
+    return { name: "أرضي القاهرة", class: "net-02" };
+}
+
+function getMessageText(customCenter = "", templateIndexOverride = null) {
+    const defaultCenter = document.getElementById('targetCenter').value.trim();
+    const chosenCenter = customCenter || defaultCenter || "المركز";
+    
+    const sel = document.getElementById('templateSelect').value;
+    let baseText = "";
+    if (sel === 'rotate') {
+        const idx = templateIndexOverride !== null ? templateIndexOverride : (rotateCounter % messageTemplates.length);
+        baseText = messageTemplates[idx].text;
+    } else {
+        baseText = document.getElementById('customTemplateText').value;
+    }
+
+    let processedBody = baseText.replace(/\{المركز\}/g, chosenCenter);
+    const rawLink = document.getElementById('appLink').value.trim();
+    const safeLink = rawLink ? `\n\u200E${rawLink}\u200E` : "";
 
     const sender = document.getElementById('senderName').value.trim();
     const phone = document.getElementById('senderPhone').value.trim();
     const footer = (phone || sender) ? `\n\nللتواصل المباشر: ${phone}${sender ? ' - ' + sender : ''}` : "";
 
-    return `${processedBody}${safeLink}${footer}`; }  function updatePreview() { const nextNum = phoneList[currentIndex]; const nextCenter = nextNum ? centerNames[nextNum] : ""; document.getElementById('msgPreview').innerText = getMessageText(nextCenter); }  function addNewNumbers() { const rawInput = document.getElementById('newNumbersInput').value; if (!rawInput.trim()) return;  const lines = rawInput.split(/\r?\n/); let addedCount = 0;  lines.forEach(line => { const match = line.match(/\d{9,12}/); if (match) { let cleaned = match[0].trim(); if (cleaned.length === 10 && !cleaned.startsWith("0")) cleaned = "0" + cleaned; const namePart = line.replace(match[0], '').replace(/[-،,\t]/g, ' ').trim(); if (namePart) centerNames[cleaned] = namePart; if (!phoneList.includes(cleaned)) { phoneList.push(cleaned); addedCount++; } } });  document.getElementById('newNumbersInput').value = ''; saveState(); alert(`تمت إضافة ${addedCount} رقم جديد بنجاح!`);
+    return `${processedBody}${safeLink}${footer}`;
+}
+
+function updatePreview() {
+    const nextNum = phoneList[currentIndex];
+    const nextCenter = nextNum ? centerNames[nextNum] : "";
+    document.getElementById('msgPreview').innerText = getMessageText(nextCenter);
+}
+
+function addNewNumbers() {
+    const rawInput = document.getElementById('newNumbersInput').value;
+    if (!rawInput.trim()) return;
+
+    const lines = rawInput.split(/\r?\n/);
+    let addedCount = 0;
+
+    lines.forEach(line => {
+        const match = line.match(/\d{9,12}/);
+        if (match) {
+            let cleaned = match[0].trim();
+            if (cleaned.length === 10 && !cleaned.startsWith("0")) cleaned = "0" + cleaned;
+            const namePart = line.replace(match[0], '').replace(/[-،,\t]/g, ' ').trim();
+            if (namePart) centerNames[cleaned] = namePart;
+            if (!phoneList.includes(cleaned)) {
+                phoneList.push(cleaned);
+                addedCount++;
+            }
+        }
+    });
+
+    document.getElementById('newNumbersInput').value = '';
+    saveState();
+    alert(`تمت إضافة ${addedCount} رقم جديد بنجاح!`);
     renderTable();
 }
 
@@ -291,7 +415,8 @@ function renderTable() {
     const tbody = document.getElementById('numbersTableBody');
     tbody.innerHTML = '';
     
-    document.getElementById('totalCountBadge').innerText = `${phoneList.length} رقم`; document.getElementById('tableNumbersCount').innerText = `${phoneList.length} رقم`;
+    document.getElementById('totalCountBadge').innerText = `${phoneList.length} رقم`;
+    document.getElementById('tableNumbersCount').innerText = `${phoneList.length} رقم`;
 
     phoneList.forEach((num, index) => {
         const net = getNetworkInfo(num);
@@ -302,3 +427,85 @@ function renderTable() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="fw-bold text-secondary">${index + 1}</td>
+            <td class="fw-bold fs-6" dir="ltr">${num}</td>
+            <td>
+                <input type="text" class="form-control form-control-sm center-input border-success" 
+                    placeholder="اكتب اسم المركز..." 
+                    value="${savedCenter.replace(/"/g, '&quot;')}" 
+                    oninput="updateCenterName('${num}', this.value)">
+            </td>
+            <td><span class="badge badge-net ${net.class}">${net.name}</span></td>
+            <td>${isSent ? '<span class="badge bg-success">تم الإرسال ✅</span>' : '<span class="badge bg-warning text-dark">في الانتظار</span>'}</td>
+            <td>
+                <button class="btn btn-sm btn-whatsapp me-1 fw-bold" onclick="sendWhatsApp('${num}')"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+                ${isLandline 
+                    ? `<a href="tel:${num}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-phone"></i> اتصال</a>` 
+                    : `<button class="btn btn-sm btn-outline-dark" onclick="sendSMS('${num}')"><i class="fa-solid fa-envelope"></i> SMS</button>`
+                }
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    updateStats();
+    updatePreview();
+}
+
+function updateStats() {
+    const sentCount = Object.keys(sentStatus).length;
+    document.getElementById('sentCount').innerText = sentCount;
+    document.getElementById('remainingCount').innerText = phoneList.length - sentCount;
+    
+    currentIndex = 0;
+    while(currentIndex < phoneList.length && sentStatus[phoneList[currentIndex]]) {
+        currentIndex++;
+    }
+    
+    if (currentIndex < phoneList.length) {
+        const nextNum = phoneList[currentIndex];
+        document.getElementById('nextNumberText').innerText = nextNum;
+        document.getElementById('nextCenterNameText').innerText = centerNames[nextNum] ? `(${centerNames[nextNum]})` : "(بدون اسم مركز مخصص)";
+    } else {
+        document.getElementById('nextNumberText').innerText = "تم إرسال جميع الأرقام 🎉";
+        document.getElementById('nextCenterNameText').innerText = "";
+    }
+}
+
+function sendWhatsApp(num) {
+    const intl = "20" + num.substring(1);
+    const customCenter = centerNames[num] || "";
+    const msg = encodeURIComponent(getMessageText(customCenter));
+    window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
+    
+    sentStatus[num] = true;
+    rotateCounter++;
+    if (document.getElementById('templateSelect').value === 'rotate') {
+        document.getElementById('customTemplateText').value = messageTemplates[rotateCounter % messageTemplates.length].text;
+    }
+    saveState();
+    renderTable();
+}
+
+function sendSMS(num) {
+    const customCenter = centerNames[num] || "";
+    const msg = encodeURIComponent(getMessageText(customCenter));
+    window.open(`sms:${num}?body=${msg}`, '_self');
+    
+    sentStatus[num] = true;
+    rotateCounter++;
+    saveState();
+    renderTable();
+}
+
+function sendNext() {
+    if (currentIndex < phoneList.length) {
+        sendWhatsApp(phoneList[currentIndex]);
+    }
+}
+
+saveState();
+renderTemplateDropdown("0");
+renderTable();
+</script>
+</body>
+</html>
