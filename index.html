@@ -19,6 +19,7 @@
         .net-015 { background-color: #ede2f2; color: #7030a0; }
         .net-02 { background-color: #d9e1f2; color: #1f3864; }
         .message-preview { background-color: #e9ecef; border-right: 4px solid #1f3864; padding: 12px; border-radius: 6px; white-space: pre-wrap; font-size: 0.95rem; }
+        .center-input { min-width: 160px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -38,7 +39,7 @@
     <div class="row">
         <div class="col-md-7">
             <div class="card p-3">
-                <h5 class="card-title text-primary"><i class="fa-solid fa-comment-dots"></i> إعدادات الرسالة</h5>
+                <h5 class="card-title text-primary"><i class="fa-solid fa-comment-dots"></i> إعدادات الرسالة العامة</h5>
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">اسم المرسل:</label>
@@ -49,13 +50,13 @@
                         <input type="text" id="senderPhone" class="form-control" value="01131327616" oninput="updatePreview()">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">اسم المركز المستهدف:</label>
-                        <input type="text" id="targetCenter" class="form-control" placeholder="اختياري..." oninput="updatePreview()">
+                        <label class="form-label fw-bold">اسم المركز الافتراضي:</label>
+                        <input type="text" id="targetCenter" class="form-control" placeholder="إذا لم يُكتب بالجدول..." oninput="updatePreview()">
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold">رابط النظام التجريبي:</label>
-                    <input type="text" id="appLink" class="form-control" value="https://samirkhalil500.github.io/smart-clinic-pro/" oninput="updatePreview()">
+                    <label class="form-label fw-bold">رابط النظام التجريبي (تم إصلاح تداخل الرابط):</label>
+                    <input type="text" id="appLink" class="form-control text-start" dir="ltr" value="https://samirkhalil500.github.io/smart-clinic-pro/" oninput="updatePreview()">
                 </div>
                 <div class="mb-2">
                     <label class="form-label fw-bold">معاينة الرسالة:</label>
@@ -67,9 +68,10 @@
         <div class="col-md-5">
             <div class="card p-3 bg-white">
                 <h5 class="card-title text-success"><i class="fa-solid fa-bolt"></i> الإرسال السريع المتتالي</h5>
-                <p class="text-muted small">اضغط على الزر أدناه للإرسال للرقم التالي مباشرة والانتقال للذي يليه (يتم حفظ تقدمك تلقائياً).</p>
+                <p class="text-muted small">يرسل للرقم التالي مباشرة مع إدراج اسم المركز المكتوب أمامه في الجدول تلقائياً.</p>
                 <div class="text-center my-3">
-                    <div class="fs-4 fw-bold text-secondary mb-2" id="nextNumberText">01147072855</div>
+                    <div class="fs-4 fw-bold text-secondary mb-1" id="nextNumberText">01147072855</div>
+                    <div class="small text-primary fw-bold mb-2" id="nextCenterNameText"></div>
                     <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
                 </div>
                 <div class="d-flex justify-content-between text-muted small mt-2">
@@ -85,7 +87,7 @@
         <h5 class="card-title text-primary"><i class="fa-solid fa-user-plus me-2"></i> إضافة / استيراد أرقام جديدة بالقائمة</h5>
         <div class="row g-2 align-items-center">
             <div class="col-md-9">
-                <textarea id="newNumbersInput" class="form-control" rows="2" placeholder="ضع الأرقام الجديدة هنا (يمكنك لصق عدة أرقام من إكسيل أو الواتساب مرة واحدة)..."></textarea>
+                <textarea id="newNumbersInput" class="form-control" rows="2" placeholder="ضع الأرقام الجديدة هنا (يمكنك كتابة كل رقم وبجانبه اسم المركز في سطر، أو لصق أرقام فقط)..."></textarea>
             </div>
             <div class="col-md-3">
                 <button class="btn btn-primary w-100 py-3 fw-bold" onclick="addNewNumbers()"><i class="fa-solid fa-plus-circle me-1"></i> إضافة للقائمة</button>
@@ -96,7 +98,7 @@
     <!-- جدول الأرقام -->
     <div class="card p-3 mt-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title text-dark m-0"><i class="fa-solid fa-list-check me-2"></i> قائمة الأرقام</h5>
+            <h5 class="card-title text-dark m-0"><i class="fa-solid fa-list-check me-2"></i> قائمة الأرقام والمراكز</h5>
             <span class="badge bg-secondary" id="tableNumbersCount">71 رقم</span>
         </div>
         <div class="table-responsive">
@@ -105,7 +107,7 @@
                     <tr>
                         <th>#</th>
                         <th>رقم الهاتف</th>
-                        <th>الصيغة الدولية</th>
+                        <th>اسم المركز / العيادة (اختياري)</th>
                         <th>الشبكة</th>
                         <th>الحالة</th>
                         <th>إجراءات الإرسال</th>
@@ -136,14 +138,22 @@ const defaultPhoneList = [
     "01012989932"
 ];
 
-// استرجاع البيانات المحفوظة من المتصفح
 let phoneList = JSON.parse(localStorage.getItem('recova_phones')) || defaultPhoneList;
 let sentStatus = JSON.parse(localStorage.getItem('recova_sent')) || {};
+let centerNames = JSON.parse(localStorage.getItem('recova_centers')) || {};
 let currentIndex = 0;
 
 function saveState() {
     localStorage.setItem('recova_phones', JSON.stringify(phoneList));
     localStorage.setItem('recova_sent', JSON.stringify(sentStatus));
+    localStorage.setItem('recova_centers', JSON.stringify(centerNames));
+}
+
+function updateCenterName(num, value) {
+    centerNames[num] = value.trim();
+    saveState();
+    updateStats();
+    updatePreview();
 }
 
 function getNetworkInfo(num) {
@@ -154,44 +164,54 @@ function getNetworkInfo(num) {
     return { name: "أرضي القاهرة", class: "net-02" };
 }
 
-function getMessageText() {
-    const center = document.getElementById('targetCenter').value.trim();
-    const centerText = center ? ` ${center}` : " المركز";
-    const link = document.getElementById('appLink').value.trim();
+function getMessageText(customCenter = "") {
+    const defaultCenter = document.getElementById('targetCenter').value.trim();
+    const chosenCenter = customCenter || defaultCenter;
+    const centerText = chosenCenter ? ` ${chosenCenter}` : " المركز";
+    
+    const rawLink = document.getElementById('appLink').value.trim();
+    // إضافة محارف LRM (\u200E) لعزل الرابط تماماً عن النص العربي ومنع انعكاس الشرط المائلة في واتساب
+    const safeLink = `\u200E${rawLink}\u200E`;
+
     const sender = document.getElementById('senderName').value.trim();
     const phone = document.getElementById('senderPhone').value.trim();
     
     let footer = "";
     if (phone || sender) {
-        footer = `\n\nللتواصل المباشر: ${phone}${sender ? ' — ' + sender : ''}`;
+        footer = `\n\nللتواصل المباشر: ${phone}${sender ? ' - ' + sender : ''}`;
     }
 
-    return `السلام عليكم، تحية لإدارة${centerText}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة:\n${link}${footer}`;
+    return `السلام عليكم، تحية لإدارة${centerText}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة\n${safeLink}${footer}`;
 }
 
 function updatePreview() {
-    document.getElementById('msgPreview').innerText = getMessageText();
+    const nextNum = phoneList[currentIndex];
+    const nextCenter = nextNum ? centerNames[nextNum] : "";
+    document.getElementById('msgPreview').innerText = getMessageText(nextCenter);
 }
 
 function addNewNumbers() {
     const rawInput = document.getElementById('newNumbersInput').value;
     if (!rawInput.trim()) return;
 
-    const extracted = rawInput.match(/\d+/g);
-    if (!extracted) {
-        alert("لم يتم العثور على أرقام صحيحة!");
-        return;
-    }
-
+    const lines = rawInput.split(/\r?\n/);
     let addedCount = 0;
-    extracted.forEach(num => {
-        let cleaned = num.trim();
-        if (cleaned.length === 10 && !cleaned.startsWith("0")) {
-            cleaned = "0" + cleaned;
-        }
-        if (cleaned.length >= 9 && !phoneList.includes(cleaned)) {
-            phoneList.push(cleaned);
-            addedCount++;
+
+    lines.forEach(line => {
+        const match = line.match(/\d{9,12}/);
+        if (match) {
+            let cleaned = match[0].trim();
+            if (cleaned.length === 10 && !cleaned.startsWith("0")) {
+                cleaned = "0" + cleaned;
+            }
+            const namePart = line.replace(match[0], '').replace(/[-،,\t]/g, ' ').trim();
+            if (namePart) {
+                centerNames[cleaned] = namePart;
+            }
+            if (!phoneList.includes(cleaned)) {
+                phoneList.push(cleaned);
+                addedCount++;
+            }
         }
     });
 
@@ -219,15 +239,20 @@ function renderTable() {
 
     phoneList.forEach((num, index) => {
         const net = getNetworkInfo(num);
-        const intl = "+20" + num.substring(1);
         const isSent = sentStatus[num];
         const isLandline = num.startsWith("02");
+        const savedCenter = centerNames[num] || "";
         
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${index + 1}</td>
-            <td class="fw-bold">${num}</td>
-            <td class="text-muted" dir="ltr">${intl}</td>
+            <td class="fw-bold" dir="ltr">${num}</td>
+            <td>
+                <input type="text" class="form-control form-control-sm center-input" 
+                    placeholder="اكتب اسم المركز..." 
+                    value="${savedCenter.replace(/"/g, '&quot;')}" 
+                    oninput="updateCenterName('${num}', this.value)">
+            </td>
             <td><span class="badge badge-net ${net.class}">${net.name}</span></td>
             <td>${isSent ? '<span class="badge bg-success">تم الإرسال ✅</span>' : '<span class="badge bg-warning text-dark">في الانتظار</span>'}</td>
             <td>
@@ -242,6 +267,7 @@ function renderTable() {
     });
     
     updateStats();
+    updatePreview();
 }
 
 function updateStats() {
@@ -255,15 +281,19 @@ function updateStats() {
     }
     
     if (currentIndex < phoneList.length) {
-        document.getElementById('nextNumberText').innerText = phoneList[currentIndex];
+        const nextNum = phoneList[currentIndex];
+        document.getElementById('nextNumberText').innerText = nextNum;
+        document.getElementById('nextCenterNameText').innerText = centerNames[nextNum] ? `(${centerNames[nextNum]})` : "(بدون اسم مركز مخصص)";
     } else {
         document.getElementById('nextNumberText').innerText = "تم إرسال جميع الأرقام 🎉";
+        document.getElementById('nextCenterNameText').innerText = "";
     }
 }
 
 function sendWhatsApp(num) {
     const intl = "20" + num.substring(1);
-    const msg = encodeURIComponent(getMessageText());
+    const customCenter = centerNames[num] || "";
+    const msg = encodeURIComponent(getMessageText(customCenter));
     window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
     sentStatus[num] = true;
     saveState();
@@ -271,7 +301,8 @@ function sendWhatsApp(num) {
 }
 
 function sendSMS(num) {
-    const msg = encodeURIComponent(getMessageText());
+    const customCenter = centerNames[num] || "";
+    const msg = encodeURIComponent(getMessageText(customCenter));
     window.open(`sms:${num}?body=${msg}`, '_self');
     sentStatus[num] = true;
     saveState();
@@ -284,7 +315,6 @@ function sendNext() {
     }
 }
 
-updatePreview();
 renderTable();
 </script>
 </body>
