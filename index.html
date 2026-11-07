@@ -18,8 +18,9 @@
         .net-012 { background-color: #fff2cc; color: #833c0c; }
         .net-015 { background-color: #ede2f2; color: #7030a0; }
         .net-02 { background-color: #d9e1f2; color: #1f3864; }
-        .message-preview { background-color: #e9ecef; border-right: 4px solid #1f3864; padding: 12px; border-radius: 6px; white-space: pre-wrap; font-size: 0.95rem; }
+        .message-preview { background-color: #e9ecef; border-right: 4px solid #1f3864; padding: 12px; border-radius: 6px; white-space: pre-wrap; font-size: 0.9rem; }
         .center-input { min-width: 160px; font-size: 0.9rem; }
+        .template-box { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; }
     </style>
 </head>
 <body>
@@ -39,27 +40,57 @@
     <div class="row">
         <div class="col-md-7">
             <div class="card p-3">
-                <h5 class="card-title text-primary"><i class="fa-solid fa-comment-dots"></i> إعدادات الرسالة العامة</h5>
-                <div class="row mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title text-primary m-0"><i class="fa-solid fa-comment-dots"></i> إعدادات وصيغ الرسائل</h5>
+                    <span id="saveIndicator" class="badge bg-success" style="display: none;">تم الحفظ تلقائياً ✅</span>
+                </div>
+
+                <div class="row mb-2">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">اسم المرسل:</label>
-                        <input type="text" id="senderName" class="form-control" value="سمير خليل" oninput="updatePreview()">
+                        <label class="form-label fw-bold small">اسم المرسل:</label>
+                        <input type="text" id="senderName" class="form-control form-control-sm" value="سمير خليل" oninput="updatePreview()">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">رقم التواصل بالرسالة:</label>
-                        <input type="text" id="senderPhone" class="form-control" value="01131327616" oninput="updatePreview()">
+                        <label class="form-label fw-bold small">رقم التواصل:</label>
+                        <input type="text" id="senderPhone" class="form-control form-control-sm" value="01131327616" oninput="updatePreview()">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">اسم المركز الافتراضي:</label>
-                        <input type="text" id="targetCenter" class="form-control" placeholder="إذا لم يُكتب بالجدول..." oninput="updatePreview()">
+                        <label class="form-label fw-bold small">اسم المركز الافتراضي:</label>
+                        <input type="text" id="targetCenter" class="form-control form-control-sm" placeholder="إذا لم يُكتب بالجدول..." oninput="updatePreview()">
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">رابط النظام التجريبي (تم إصلاح تداخل الرابط):</label>
-                    <input type="text" id="appLink" class="form-control text-start" dir="ltr" value="https://samirkhalil500.github.io/smart-clinic-pro/" oninput="updatePreview()">
-                </div>
+
                 <div class="mb-2">
-                    <label class="form-label fw-bold">معاينة الرسالة:</label>
+                    <label class="form-label fw-bold small">رابط النظام التجريبي:</label>
+                    <input type="text" id="appLink" class="form-control form-control-sm text-start" dir="ltr" value="https://samirkhalil500.github.io/smart-clinic-pro/" oninput="updatePreview()">
+                </div>
+
+                <!-- إدارة وإضافة صيغ الرسائل -->
+                <div class="template-box mt-2 mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold text-dark m-0"><i class="fa-solid fa-layer-group text-primary me-1"></i> مكتبة صيغ الرسائل الخاصة بك:</label>
+                        <div>
+                            <button class="btn btn-sm btn-success fw-bold" onclick="addNewTemplate()"><i class="fa-solid fa-plus"></i> إضافة صيغة جديدة</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1" id="deleteTemplateBtn" onclick="deleteCurrentTemplate()" title="حذف هذه الصيغة"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+
+                    <select id="templateSelect" class="form-select form-select-sm mb-2 fw-bold border-primary" onchange="handleTemplateChange()"></select>
+
+                    <div class="mb-2" id="templateTitleContainer">
+                        <input type="text" id="templateTitleInput" class="form-control form-control-sm fw-bold text-primary" placeholder="عنوان الصيغة (مثلاً: صيغة مراكز العلاج الطبيعي)..." oninput="saveCustomTemplate()">
+                    </div>
+
+                    <textarea id="customTemplateText" class="form-control font-monospace" rows="4" style="font-size: 0.9rem;" oninput="saveCustomTemplate()" placeholder="اكتب صيغة الرسالة الخاصة بك هنا... واستخدم كلمة {المركز} ليتم استبدالها باسم المركز تلقائياً"></textarea>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <small class="text-muted">💡 استخدم <b>{المركز}</b> ليُكتب مكانها اسم المركز تلقائياً.</small>
+                        <button class="btn btn-link btn-sm text-secondary p-0 text-decoration-none" onclick="resetTemplates()">استعادة الافتراضي</button>
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <label class="form-label fw-bold small text-secondary">المعاينة النهائية للرسالة القادمة:</label>
                     <div class="message-preview" id="msgPreview"></div>
                 </div>
             </div>
@@ -69,13 +100,13 @@
             <div class="card p-3 bg-white">
                 <h5 class="card-title text-success"><i class="fa-solid fa-bolt"></i> الإرسال السريع المتتالي</h5>
                 <p class="text-muted small">يرسل للرقم التالي مباشرة مع إدراج اسم المركز المكتوب أمامه في الجدول تلقائياً.</p>
-                <div class="text-center my-3">
-                    <div class="fs-4 fw-bold text-secondary mb-1" id="nextNumberText">01147072855</div>
-                    <div class="small text-primary fw-bold mb-2" id="nextCenterNameText"></div>
-                    <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
+                <div class="text-center my-4">
+                    <div class="fs-3 fw-bold text-dark mb-1" id="nextNumberText" dir="ltr">01147072855</div>
+                    <div class="small text-primary fw-bold mb-3" id="nextCenterNameText"></div>
+                    <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold shadow-sm" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
                 </div>
-                <div class="d-flex justify-content-between text-muted small mt-2">
-                    <span>المتبقي: <b id="remainingCount">71</b></span>
+                <div class="d-flex justify-content-between text-muted small mt-2 pt-2 border-top">
+                    <span>المتبقي بالجدول: <b id="remainingCount">71</b></span>
                     <span>تم الإرسال: <b id="sentCount" class="text-success">0</b></span>
                 </div>
             </div>
@@ -138,184 +169,10 @@ const defaultPhoneList = [
     "01012989932"
 ];
 
-let phoneList = JSON.parse(localStorage.getItem('recova_phones')) || defaultPhoneList;
-let sentStatus = JSON.parse(localStorage.getItem('recova_sent')) || {};
-let centerNames = JSON.parse(localStorage.getItem('recova_centers')) || {};
-let currentIndex = 0;
-
-function saveState() {
-    localStorage.setItem('recova_phones', JSON.stringify(phoneList));
-    localStorage.setItem('recova_sent', JSON.stringify(sentStatus));
-    localStorage.setItem('recova_centers', JSON.stringify(centerNames));
-}
-
-function updateCenterName(num, value) {
-    centerNames[num] = value.trim();
-    saveState();
-    updateStats();
-    updatePreview();
-}
-
-function getNetworkInfo(num) {
-    if (num.startsWith("010")) return { name: "فودافون", class: "net-010" };
-    if (num.startsWith("011")) return { name: "اتصالات", class: "net-011" };
-    if (num.startsWith("012")) return { name: "أورانج", class: "net-012" };
-    if (num.startsWith("015")) return { name: "وي (WE)", class: "net-015" };
-    return { name: "أرضي القاهرة", class: "net-02" };
-}
-
-function getMessageText(customCenter = "") {
-    const defaultCenter = document.getElementById('targetCenter').value.trim();
-    const chosenCenter = customCenter || defaultCenter;
-    const centerText = chosenCenter ? ` ${chosenCenter}` : " المركز";
-    
-    const rawLink = document.getElementById('appLink').value.trim();
-    // إضافة محارف LRM (\u200E) لعزل الرابط تماماً عن النص العربي ومنع انعكاس الشرط المائلة في واتساب
-    const safeLink = `\u200E${rawLink}\u200E`;
-
-    const sender = document.getElementById('senderName').value.trim();
-    const phone = document.getElementById('senderPhone').value.trim();
-    
-    let footer = "";
-    if (phone || sender) {
-        footer = `\n\nللتواصل المباشر: ${phone}${sender ? ' - ' + sender : ''}`;
-    }
-
-    return `السلام عليكم، تحية لإدارة${centerText}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة\n${safeLink}${footer}`;
-}
-
-function updatePreview() {
-    const nextNum = phoneList[currentIndex];
-    const nextCenter = nextNum ? centerNames[nextNum] : "";
-    document.getElementById('msgPreview').innerText = getMessageText(nextCenter);
-}
-
-function addNewNumbers() {
-    const rawInput = document.getElementById('newNumbersInput').value;
-    if (!rawInput.trim()) return;
-
-    const lines = rawInput.split(/\r?\n/);
-    let addedCount = 0;
-
-    lines.forEach(line => {
-        const match = line.match(/\d{9,12}/);
-        if (match) {
-            let cleaned = match[0].trim();
-            if (cleaned.length === 10 && !cleaned.startsWith("0")) {
-                cleaned = "0" + cleaned;
-            }
-            const namePart = line.replace(match[0], '').replace(/[-،,\t]/g, ' ').trim();
-            if (namePart) {
-                centerNames[cleaned] = namePart;
-            }
-            if (!phoneList.includes(cleaned)) {
-                phoneList.push(cleaned);
-                addedCount++;
-            }
-        }
-    });
-
-    document.getElementById('newNumbersInput').value = '';
-    saveState();
-    alert(`تمت إضافة ${addedCount} رقم جديد بنجاح!`);
-    renderTable();
-}
-
-function resetProgress() {
-    if (confirm("هل أنت متأكد من تصفير حالة الإرسال لجميع الأرقام والبدء من جديد؟")) {
-        sentStatus = {};
-        currentIndex = 0;
-        saveState();
-        renderTable();
-    }
-}
-
-function renderTable() {
-    const tbody = document.getElementById('numbersTableBody');
-    tbody.innerHTML = '';
-    
-    document.getElementById('totalCountBadge').innerText = `${phoneList.length} رقم`;
-    document.getElementById('tableNumbersCount').innerText = `${phoneList.length} رقم`;
-
-    phoneList.forEach((num, index) => {
-        const net = getNetworkInfo(num);
-        const isSent = sentStatus[num];
-        const isLandline = num.startsWith("02");
-        const savedCenter = centerNames[num] || "";
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td class="fw-bold" dir="ltr">${num}</td>
-            <td>
-                <input type="text" class="form-control form-control-sm center-input" 
-                    placeholder="اكتب اسم المركز..." 
-                    value="${savedCenter.replace(/"/g, '&quot;')}" 
-                    oninput="updateCenterName('${num}', this.value)">
-            </td>
-            <td><span class="badge badge-net ${net.class}">${net.name}</span></td>
-            <td>${isSent ? '<span class="badge bg-success">تم الإرسال ✅</span>' : '<span class="badge bg-warning text-dark">في الانتظار</span>'}</td>
-            <td>
-                <button class="btn btn-sm btn-whatsapp me-1" onclick="sendWhatsApp('${num}')"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
-                ${isLandline 
-                    ? `<a href="tel:${num}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-phone"></i> اتصال</a>` 
-                    : `<button class="btn btn-sm btn-outline-primary" onclick="sendSMS('${num}')"><i class="fa-solid fa-envelope"></i> SMS</button>`
-                }
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-    
-    updateStats();
-    updatePreview();
-}
-
-function updateStats() {
-    const sentCount = Object.keys(sentStatus).length;
-    document.getElementById('sentCount').innerText = sentCount;
-    document.getElementById('remainingCount').innerText = phoneList.length - sentCount;
-    
-    currentIndex = 0;
-    while(currentIndex < phoneList.length && sentStatus[phoneList[currentIndex]]) {
-        currentIndex++;
-    }
-    
-    if (currentIndex < phoneList.length) {
-        const nextNum = phoneList[currentIndex];
-        document.getElementById('nextNumberText').innerText = nextNum;
-        document.getElementById('nextCenterNameText').innerText = centerNames[nextNum] ? `(${centerNames[nextNum]})` : "(بدون اسم مركز مخصص)";
-    } else {
-        document.getElementById('nextNumberText').innerText = "تم إرسال جميع الأرقام 🎉";
-        document.getElementById('nextCenterNameText').innerText = "";
-    }
-}
-
-function sendWhatsApp(num) {
-    const intl = "20" + num.substring(1);
-    const customCenter = centerNames[num] || "";
-    const msg = encodeURIComponent(getMessageText(customCenter));
-    window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
-    sentStatus[num] = true;
-    saveState();
-    renderTable();
-}
-
-function sendSMS(num) {
-    const customCenter = centerNames[num] || "";
-    const msg = encodeURIComponent(getMessageText(customCenter));
-    window.open(`sms:${num}?body=${msg}`, '_self');
-    sentStatus[num] = true;
-    saveState();
-    renderTable();
-}
-
-function sendNext() {
-    if (currentIndex < phoneList.length) {
-        sendWhatsApp(phoneList[currentIndex]);
-    }
-}
-
-renderTable();
-</script>
-</body>
-</html>
+const defaultTemplates = [
+    {
+        title: "الصيغة 1: خطوة نحو التميز (مختصرة)",
+        text: "السلام عليكم، تحية لإدارة {المركز}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة"
+    },
+    {
+        title: "الصيغة 2: شريك نجاحكم
