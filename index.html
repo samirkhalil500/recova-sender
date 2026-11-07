@@ -26,6 +26,7 @@
         .center-input { min-width: 160px; font-size: 0.9rem; }
         .template-box { background-color: #f0f9f4; border: 1px solid #128C7E; border-radius: 8px; padding: 12px; }
         .table-wa-head { background-color: #075E54 !important; color: white !important; }
+        .poster-preview { max-height: 180px; object-fit: contain; border-radius: 8px; border: 2px dashed #128C7E; background: #fff; }
     </style>
 </head>
 <body>
@@ -43,6 +44,7 @@
 
 <div class="container">
     <div class="row">
+        <!-- قسم الإعدادات والصيغ -->
         <div class="col-md-7">
             <div class="card p-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -63,9 +65,9 @@
 
                 <div class="template-box mt-2 mb-2">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label fw-bold text-wa m-0"><i class="fa-solid fa-layer-group me-1"></i> مكتبة صيغ الرسائل (احفظ صيغك هنا):</label>
+                        <label class="form-label fw-bold text-wa m-0"><i class="fa-solid fa-layer-group me-1"></i> مكتبة صيغ الرسائل:</label>
                         <div>
-                            <button class="btn btn-sm btn-wa-dark fw-bold" onclick="addNewTemplate()"><i class="fa-solid fa-plus"></i> إضافة صيغة جديدة</button>
+                            <button class="btn btn-sm btn-wa-dark fw-bold" onclick="addNewTemplate()"><i class="fa-solid fa-plus"></i> إضافة صيغة</button>
                             <button class="btn btn-sm btn-outline-danger ms-1" id="deleteTemplateBtn" onclick="deleteCurrentTemplate()" title="حذف هذه الصيغة"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
@@ -76,11 +78,11 @@
                         <input type="text" id="templateTitleInput" class="form-control form-control-sm fw-bold text-wa" placeholder="عنوان الصيغة..." oninput="saveCustomTemplate()">
                     </div>
 
-                    <textarea id="customTemplateText" class="form-control" rows="4" style="font-size: 0.9rem;" oninput="saveCustomTemplate()" placeholder="اكتب صيغة الرسالة الخاصة بك هنا... واستخدم كلمة {المركز} ليتم استبدالها باسم المركز تلقائياً"></textarea>
+                    <textarea id="customTemplateText" class="form-control" rows="3" style="font-size: 0.9rem;" oninput="saveCustomTemplate()" placeholder="اكتب صيغة الرسالة هنا... واستخدم كلمة {المركز}"></textarea>
                     
                     <div class="d-flex justify-content-between align-items-center mt-1">
                         <small class="text-muted">💡 كلمة <b>{المركز}</b> تُستبدل تلقائياً باسم المركز المكتوب بالجدول.</small>
-                        <button class="btn btn-link btn-sm text-danger p-0 text-decoration-none fw-bold" onclick="resetTemplates()">إعادة ضبط الصيغ الأصلية</button>
+                        <button class="btn btn-link btn-sm text-danger p-0 text-decoration-none fw-bold" onclick="resetTemplates()">استعادة الصيغ الأصلية</button>
                     </div>
                 </div>
 
@@ -91,29 +93,42 @@
             </div>
         </div>
 
+        <!-- قسم الإرسال السريع وصورة البوستر -->
         <div class="col-md-5">
             <div class="card p-3 bg-white border-top border-5 border-success">
                 <h5 class="card-title text-wa fw-bold"><i class="fa-solid fa-bolt text-warning"></i> الإرسال السريع المتتالي</h5>
-                <p class="text-muted small">يرسل للرقم التالي في الدور مباشرة (لتجربة رقم معين بالجدول اضغط زر واتساب الأخضر الذي أمامه مباشرة).</p>
-                <div class="text-center my-4 p-3 rounded" style="background-color: #f0f9f4;">
+                <p class="text-muted small mb-2">يرسل للرقم التالي في الدور مباشرة.</p>
+                <div class="text-center my-3 p-3 rounded" style="background-color: #f0f9f4;">
                     <div class="fs-2 fw-bold text-wa mb-1" id="nextNumberText" dir="ltr">01147072855</div>
                     <div class="small text-success fw-bold mb-3" id="nextCenterNameText"></div>
                     <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold shadow" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
                 </div>
-                <div class="d-flex justify-content-between text-muted small mt-2 pt-2 border-top">
-                    <span>المتبقي بالجدول: <b id="remainingCount" class="text-dark fs-6">71</b></span>
-                    <span>تم الإرسال: <b id="sentCount" class="text-success fs-6">0</b></span>
+                <div class="d-flex justify-content-between text-muted small mt-1 pt-2 border-top">
+                    <span>المتبقي: <b id="remainingCount" class="text-dark">71</b></span>
+                    <span>تم الإرسال: <b id="sentCount" class="text-success">0</b></span>
                 </div>
             </div>
 
+            <!-- صندوق البوستر الإعلاني المحدث (رفع من الجهاز) -->
             <div class="card p-3 bg-white">
-                <h6 class="card-title text-wa fw-bold"><i class="fa-solid fa-user-plus me-1"></i> إضافة أرقام جديدة للقائمة</h6>
-                <textarea id="newNumbersInput" class="form-control form-control-sm mb-2" rows="3" placeholder="ضع الأرقام الجديدة هنا (يمكنك كتابة كل رقم وبجانبه اسم المركز في سطر، أو لصق أرقام فقط)..."></textarea>
-                <button class="btn btn-wa-dark w-100 py-2 fw-bold" onclick="addNewNumbers()"><i class="fa-solid fa-plus-circle me-1"></i> إضافة الأرقام للجدول</button>
+                <h6 class="card-title text-wa fw-bold mb-2"><i class="fa-solid fa-image me-1"></i> الصورة الإعلانية (البوستر المرافق)</h6>
+                <div class="text-center mb-2">
+                    <img id="posterImgPreview" src="poster.jpg" alt="البوستر الإعلاني" class="poster-preview w-100 mb-2" onerror="this.src='https://via.placeholder.com/400x200?text=اختر+صورة+البوستر'">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-bold text-secondary mb-1">اختر بوستر جديد من جهازك:</label>
+                    <input type="file" id="posterFileInput" class="form-control form-control-sm" accept="image/*" onchange="loadPosterFromFile(event)">
+                </div>
+                <div class="d-flex gap-2">
+                    <input type="text" id="posterUrlInput" class="form-control form-control-sm text-start" dir="ltr" value="poster.jpg" oninput="updatePosterPreview()" placeholder="أو اكتب رابط الصورة...">
+                    <a id="downloadPosterBtn" href="poster.jpg" download="Recova-Poster.jpg" class="btn btn-sm btn-outline-success" title="تحميل البوستر لجهازك"><i class="fa-solid fa-download"></i> تحميل</a>
+                </div>
+                <small class="text-muted mt-1">💡 يمكنك رفع أي صورة جديدة بضغطة زر لتظهر فوراً هنا وتكون جاهزة للإرسال مع الرسالة.</small>
             </div>
         </div>
     </div>
 
+    <!-- جدول الأرقام -->
     <div class="card p-3 mt-2">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title text-wa fw-bold m-0"><i class="fa-solid fa-list-check me-2"></i> قائمة الأرقام والمراكز المستهدفة</h5>
@@ -185,7 +200,6 @@ try { sentStatus = JSON.parse(localStorage.getItem('recova_sent')) || {}; } catc
 let centerNames = {};
 try { centerNames = JSON.parse(localStorage.getItem('recova_centers')) || {}; } catch(e) { centerNames = {}; }
 
-// استخدام مفتاح جديد v3 لضمان مسح أي قوالب قديمة سببت مشكلة الرابط
 let messageTemplates = [];
 try {
     const savedTpls = JSON.parse(localStorage.getItem('recova_templates_v3'));
@@ -210,6 +224,37 @@ function saveState() {
     localStorage.setItem('recova_centers', JSON.stringify(centerNames));
     localStorage.setItem('recova_templates_v3', JSON.stringify(messageTemplates));
 }
+
+function updatePosterPreview() {
+    const url = document.getElementById('posterUrlInput').value.trim() || 'poster.jpg';
+    document.getElementById('posterImgPreview').src = url;
+    document.getElementById('downloadPosterBtn').href = url;
+}
+
+function loadPosterFromFile(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result;
+            document.getElementById('posterImgPreview').src = base64Image;
+            document.getElementById('posterUrlInput').value = base64Image;
+            document.getElementById('downloadPosterBtn').href = base64Image;
+            localStorage.setItem('recova_custom_poster', base64Image);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// استرجاع البوستر المرفوع محلياً إن وجد عند فتح الصفحة
+window.addEventListener('DOMContentLoaded', () => {
+    const savedPoster = localStorage.getItem('recova_custom_poster');
+    if (savedPoster) {
+        document.getElementById('posterImgPreview').src = savedPoster;
+        document.getElementById('posterUrlInput').value = savedPoster;
+        document.getElementById('downloadPosterBtn').href = savedPoster;
+    }
+});
 
 function restoreDefaultNumbers() {
     defaultPhoneList.forEach(num => {
@@ -326,7 +371,6 @@ function updateCenterName(num, value) {
     centerNames[num] = value.trim();
     saveState();
     updateStats();
-    // تحديث المعاينة فوراً بالاسم الذي تكتبه الآن لتتأكد من ظهوره
     document.getElementById('msgPreview').innerText = getMessageText(value.trim());
 }
 
@@ -351,10 +395,8 @@ function getMessageText(customCenter = "", templateIndexOverride = null) {
         baseText = document.getElementById('customTemplateText').value;
     }
 
-    // تنظيف النص من أي محارف خفية قد تسبب إزاحة تلوين الرابط في واتساب ويب
     let cleanBody = baseText.replace(/[\u200B-\u200F\u202A-\u202E]/g, '').trim();
 
-    // استبدال ذكي لكلمة {المركز} أو "إدارة المركز" باسم المركز المخصص
     if (cleanBody.includes("{المركز}")) {
         cleanBody = cleanBody.replace(/\{المركز\}/g, chosenCenter);
     } else if (chosenCenter !== "المركز") {
@@ -362,8 +404,6 @@ function getMessageText(customCenter = "", templateIndexOverride = null) {
     }
 
     const rawLink = document.getElementById('appLink').value.replace(/[\u200B-\u200F\u202A-\u202E]/g, '').trim();
-    
-    // وضع الرابط في سطر منفصل تماماً ومسبوق بسطر فارغ ومسافة قياسية لضمان تلوينه بالكامل في واتساب ويب
     const cleanLink = rawLink ? `\n\n${rawLink}\n` : "";
 
     return `${cleanBody}${cleanLink}`;
@@ -475,7 +515,6 @@ function updateStats() {
 function sendWhatsApp(num, rowIndex = null) {
     const intl = "20" + num.substring(1);
     
-    // قراءة اسم المركز مباشرة من خانة الجدول لضمان التقاط أي اسم كتبته للتو بنسبة 100%
     let customCenter = centerNames[num] || "";
     if (rowIndex !== null) {
         const inputEl = document.getElementById(`center_input_${rowIndex}`);
@@ -486,7 +525,6 @@ function sendWhatsApp(num, rowIndex = null) {
     }
 
     const msg = encodeURIComponent(getMessageText(customCenter));
-    // استخدام api.whatsapp.com بدلاً من wa.me لمنع خطأ إعادة التوجيه وتقطيع الروابط في واتساب ويب
     window.open(`https://api.whatsapp.com/send?phone=${intl}&text=${msg}`, '_blank');
     
     sentStatus[num] = true;
