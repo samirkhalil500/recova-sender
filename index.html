@@ -51,23 +51,14 @@
                 </div>
 
                 <div class="row mb-2">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold small">اسم المرسل:</label>
-                        <input type="text" id="senderName" class="form-control form-control-sm" value="سمير خليل" oninput="updatePreview()">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold small">رقم التواصل:</label>
-                        <input type="text" id="senderPhone" class="form-control form-control-sm" value="01131327616" oninput="updatePreview()">
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <label class="form-label fw-bold small">اسم المركز الافتراضي:</label>
-                        <input type="text" id="targetCenter" class="form-control form-control-sm" placeholder="إذا لم يُكتب بالجدول..." oninput="updatePreview()">
+                        <input type="text" id="targetCenter" class="form-control form-control-sm" placeholder="إذا لم يُكتب أمام الرقم بالجدول..." oninput="updatePreview()">
                     </div>
-                </div>
-
-                <div class="mb-2">
-                    <label class="form-label fw-bold small">رابط النظام التجريبي:</label>
-                    <input type="text" id="appLink" class="form-control form-control-sm text-start" dir="ltr" value="https://samirkhalil500.github.io/smart-clinic-pro/" oninput="updatePreview()">
+                    <div class="col-md-7">
+                        <label class="form-label fw-bold small">رابط النظام التجريبي:</label>
+                        <input type="text" id="appLink" class="form-control form-control-sm text-start" dir="ltr" value="https://samirkhalil500.github.io/smart-clinic-pro/" oninput="updatePreview()">
+                    </div>
                 </div>
 
                 <div class="template-box mt-2 mb-2">
@@ -168,15 +159,15 @@ const defaultPhoneList = [
 const defaultTemplates = [
     {
         title: "الصيغة 1: خطوة نحو التميز (مختصرة)",
-        text: "السلام عليكم، تحية لإدارة {المركز}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة"
+        text: "السلام عليكم، تحية لإدارة {المركز}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة:"
     },
     {
         title: "الصيغة 2: شريك نجاحكم الرقمي (رسمية)",
-        text: "تحية طيبة لإدارة {المركز}،\n\nيسعدنا في ريكوفا كلود (Recova Cloud) أن نكون شركاء نجاحكم في التطوير الرقمي؛ عبر نظام سحابي ذكي يجمع إدارة الجلسات، ملفات المرضى، والحسابات في شاشة واحدة تتابعونها من أي مكان.\n\nجولة سريعة بالصور والفيديو داخل النظام"
+        text: "تحية طيبة لإدارة {المركز}،\n\nيسعدنا في ريكوفا كلود (Recova Cloud) أن نكون شركاء نجاحكم في التطوير الرقمي؛ عبر نظام سحابي ذكي يجمع إدارة الجلسات، ملفات المرضى، والحسابات في شاشة واحدة تتابعونها من أي مكان.\n\nجولة سريعة بالصور والفيديو داخل النظام:"
     },
     {
         title: "الصيغة 3: نقاط سريعة (مميزات النظام)",
-        text: "أهلاً بكم، إدارة {المركز}،\n\nنشارككم النجاح ونسهل عليكم الإدارة اليومية مع نظام ريكوفا كلود السحابي:\n- متابعة دقيقة للجلسات والملفات الطبية.\n- ضبط كامل للحسابات وصلاحيات الموظفين.\n- تقارير لحظية من الموبايل في أي وقت.\n\nشاهدوا شاشات النظام والفيديو التعريفي هنا"
+        text: "أهلاً بكم، إدارة {المركز}،\n\nنشارككم النجاح ونسهل عليكم الإدارة اليومية مع نظام ريكوفا كلود السحابي:\n- متابعة دقيقة للجلسات والملفات الطبية.\n- ضبط كامل للحسابات وصلاحيات الموظفين.\n- تقارير لحظية من الموبايل في أي وقت.\n\nشاهدوا شاشات النظام والفيديو التعريفي هنا:"
     }
 ];
 
@@ -358,15 +349,13 @@ function getMessageText(customCenter = "", templateIndexOverride = null) {
         baseText = document.getElementById('customTemplateText').value;
     }
 
-    let processedBody = baseText.replace(/\{المركز\}/g, chosenCenter);
+    let processedBody = baseText.replace(/\{المركز\}/g, chosenCenter).trim();
     const rawLink = document.getElementById('appLink').value.trim();
-    const safeLink = rawLink ? `\n\u200E${rawLink}\u200E` : "";
+    
+    // وضع الرابط صافي تماماً في نهاية الرسالة بدون أي رموز مخفية أو نصوص عربية بعده
+    const cleanLink = rawLink ? `\n\n${rawLink}` : "";
 
-    const sender = document.getElementById('senderName').value.trim();
-    const phone = document.getElementById('senderPhone').value.trim();
-    const footer = (phone || sender) ? `\n\nللتواصل المباشر: ${phone}${sender ? ' - ' + sender : ''}` : "";
-
-    return `${processedBody}${safeLink}${footer}`;
+    return `${processedBody}${cleanLink}`;
 }
 
 function updatePreview() {
