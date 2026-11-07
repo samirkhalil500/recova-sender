@@ -1,1 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة ريكوفا | المساعد الشخصي للإرسال - سمير خليل</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 50px; }
+        .navbar { background: linear-gradient(135deg, #1f3864, #2c4d82); }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .btn-whatsapp { background-color: #25D366; color: white; }
+        .btn-whatsapp:hover { background-color: #1da851; color: white; }
+        .badge-net { font-size: 0.85rem; padding: 6px 10px; border-radius: 6px; }
+        .net-010 { background-color: #fce4d6; color: #c00000; }
+        .net-011 { background-color: #e2efda; color: #375623; }
+        .net-012 { background-color: #fff2cc; color: #833c0c; }
+        .net-015 { background-color: #ede2f2; color: #7030a0; }
+        .net-02 { background-color: #d9e1f2; color: #1f3864; }
+        .message-preview { background-color: #e9ecef; border-right: 4px solid #1f3864; padding: 12px; border-radius: 6px; white-space: pre-wrap; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
 
+<nav class="navbar navbar-dark mb-4 py-3">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1"><i class="fa-solid fa-paper-plane me-2"></i> منصة ريكوفا - النسخة الشخصية (أستاذ سمير خليل)</span>
+        <span class="badge bg-light text-dark fs-6" id="totalCountBadge">71 رقم</span>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- الرسالة وإعدادات الإرسال -->
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card p-3">
+                <h5 class="card-title text-primary"><i class="fa-solid fa-comment-dots"></i> نص الرسالة المعتمد</h5>
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">اسم المرسل:</label>
+                    <input type="text" id="senderName" class="form-control" value="سمير خليل" oninput="updatePreview()">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">رابط النظام التجريبي:</label>
+                    <input type="text" id="appLink" class="form-control" value="https://samirkhalil500.github.io/smart-clinic-pro/" oninput="updatePreview()">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label font-weight-bold">معاينة الرسالة:</label>
+                    <div class="message-preview" id="msgPreview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card p-3 bg-white">
+                <h5 class="card-title text-success"><i class="fa-solid fa-bolt"></i> الإرسال السريع المتتالي</h5>
+                <p class="text-muted small">اضغط على الزر أدناه للإرسال للرقم التالي مباشرة والانتقال للذي يليه.</p>
+                <div class="text-center my-3">
+                    <div class="fs-4 fw-bold text-secondary mb-2" id="nextNumberText">01147072855</div>
+                    <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
+                </div>
+                <div class="d-flex justify-content-between text-muted small">
+                    <span>المتبقي: <b id="remainingCount">71</b></span>
+                    <span>تم الإرسال: <b id="sentCount">0</b></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول الأرقام -->
+    <div class="card p-3 mt-3">
+        <h5 class="card-title text-dark mb-3"><i class="fa-solid fa-list-check"></i> قائمة الأرقام (71 رقم)</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>رقم الهاتف</th>
+                        <th>الصيغة الدولية</th>
+                        <th>الشبكة</th>
+                        <th>الحالة</th>
+                        <th>إجراءات الإرسال</th>
+                    </tr>
+                </thead>
+                <tbody id="numbersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+const rawNumbers = [
+    "01147072855", "01017733770", "01006863612", "01028891550", "01028236335",
+    "01023352112", "01018433861", "01110681020", "01558155965", "01202211862",
+    "01277299002", "01011179397", "0221223496", "01029896666", "01070555556",
+    "01060509661", "01277774302", "01550501352", "01007775662", "01003222228",
+    "01553878925", "01112971229", "01044453956", "01036226939", "01020910504",
+    "01008147141", "01115519894", "01116298986", "01124731963", "01036309417",
+    "01125486437", "01111906040", "01006158873", "01061678120", "01129499699",
+    "01110026318", "01001209040", "01124978614", "01157874455", "01118889353",
+    "01091258811", "01288805295", "01204570061", "01141074282", "0224537003",
+    "01224955087", "01227766770", "01060375903", "01010108963", "01019442923",
+    "01120307887", "01094599366", "01285278135", "01019821986", "01030931061",
+    "01004316153", "01200004367", "01100212311", "0227322441", "01096966833",
+    "01090129394", "01222877863", "01017545159", "01156669921", "01008070621",
+    "01091115234", "01113744449", "01500664624", "01556178564", "01557825799",
+    "01012989932"
+];
+
+let sentStatus = {};
+let currentIndex = 0;
+
+function getNetworkInfo(num) {
+    if (num.startsWith("010")) return { name: "فودافون", class: "net-010" };
+    if (num.startsWith("011")) return { name: "اتصالات", class: "net-011" };
+    if (num.startsWith("012")) return { name: "أورانج", class: "net-012" };
+    if (num.startsWith("015")) return { name: "وي (WE)", class: "net-015" };
+    return { name: "أرضي القاهرة", class: "net-02" };
+}
+
+function getMessageText() {
+    const link = document.getElementById('appLink').value;
+    return `السلام عليكم، تحية لإدارة \nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\nشاهدوا النظام في دقيقة واحدة:\n${link}`;
+}
+
+function updatePreview() {
+    document.getElementById('msgPreview').innerText = getMessageText();
+}
+
+function renderTable() {
+    const tbody = document.getElementById('numbersTableBody');
+    tbody.innerHTML = '';
+    
+    rawNumbers.forEach((num, index) => {
+        const net = getNetworkInfo(num);
+        const intl = "+20" + num.substring(1);
+        const isSent = sentStatus[num];
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td class="fw-bold">${num}</td>
+            <td class="text-muted">${intl}</td>
+            <td><span class="badge badge-net ${net.class}">${net.name}</span></td>
+            <td>${isSent ? '<span class="badge bg-success">تم الإرسال ✅</span>' : '<span class="badge bg-warning text-dark">في الانتظار</span>'}</td>
+            <td>
+                <button class="btn btn-sm btn-whatsapp me-1" onclick="sendWhatsApp('${num}', ${index})"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+                <button class="btn btn-sm btn-outline-primary" onclick="sendSMS('${num}', ${index})"><i class="fa-solid fa-envelope"></i> SMS</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    updateStats();
+}
+
+function updateStats() {
+    const sentCount = Object.keys(sentStatus).length;
+    document.getElementById('sentCount').innerText = sentCount;
+    document.getElementById('remainingCount').innerText = rawNumbers.length - sentCount;
+    
+    while(currentIndex < rawNumbers.length && sentStatus[rawNumbers[currentIndex]]) {
+        currentIndex++;
+    }
+    
+    if (currentIndex < rawNumbers.length) {
+        document.getElementById('nextNumberText').innerText = rawNumbers[currentIndex];
+    } else {
+        document.getElementById('nextNumberText').innerText = "تم إرسال جميع الأرقام 🎉";
+    }
+}
+
+function sendWhatsApp(num, index) {
+    const intl = "20" + num.substring(1);
+    const msg = encodeURIComponent(getMessageText());
+    window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
+    sentStatus[num] = true;
+    renderTable();
+}
+
+function sendSMS(num, index) {
+    const msg = encodeURIComponent(getMessageText());
+    window.open(`sms:${num}?body=${msg}`, '_self');
+    sentStatus[num] = true;
+    renderTable();
+}
+
+function sendNext() {
+    if (currentIndex < rawNumbers.length) {
+        sendWhatsApp(rawNumbers[currentIndex], currentIndex);
+    }
+}
+
+updatePreview();
+renderTable();
+</script>
+</body>
+</html>
