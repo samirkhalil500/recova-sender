@@ -52,8 +52,8 @@
 
                 <div class="row mb-2">
                     <div class="col-md-5">
-                        <label class="form-label fw-bold small">اسم المركز الافتراضي:</label>
-                        <input type="text" id="targetCenter" class="form-control form-control-sm" placeholder="إذا لم يُكتب أمام الرقم بالجدول..." oninput="updatePreview()">
+                        <label class="form-label fw-bold small">اسم المركز العام (اختياري):</label>
+                        <input type="text" id="targetCenter" class="form-control form-control-sm" placeholder="يُستخدم إذا لم تكتب اسماً بالجدول..." oninput="updatePreview()">
                     </div>
                     <div class="col-md-7">
                         <label class="form-label fw-bold small">رابط النظام التجريبي:</label>
@@ -80,12 +80,12 @@
                     
                     <div class="d-flex justify-content-between align-items-center mt-1">
                         <small class="text-muted">💡 كلمة <b>{المركز}</b> تُستبدل تلقائياً باسم المركز المكتوب بالجدول.</small>
-                        <button class="btn btn-link btn-sm text-secondary p-0 text-decoration-none" onclick="resetTemplates()">استعادة الصيغ الأصلية</button>
+                        <button class="btn btn-link btn-sm text-danger p-0 text-decoration-none fw-bold" onclick="resetTemplates()">إعادة ضبط الصيغ الأصلية</button>
                     </div>
                 </div>
 
                 <div class="mt-2">
-                    <label class="form-label fw-bold small text-wa"><i class="fa-brands fa-whatsapp"></i> معاينة شكل الرسالة في الواتساب:</label>
+                    <label class="form-label fw-bold small text-wa"><i class="fa-brands fa-whatsapp"></i> معاينة شكل الرسالة:</label>
                     <div class="message-preview" id="msgPreview"></div>
                 </div>
             </div>
@@ -94,10 +94,10 @@
         <div class="col-md-5">
             <div class="card p-3 bg-white border-top border-5 border-success">
                 <h5 class="card-title text-wa fw-bold"><i class="fa-solid fa-bolt text-warning"></i> الإرسال السريع المتتالي</h5>
-                <p class="text-muted small">يرسل للرقم التالي مباشرة مع إدراج اسم المركز المكتوب أمامه في الجدول تلقائياً.</p>
+                <p class="text-muted small">يرسل للرقم التالي في الدور مباشرة (لتجربة رقم معين بالجدول اضغط زر واتساب الأخضر الذي أمامه مباشرة).</p>
                 <div class="text-center my-4 p-3 rounded" style="background-color: #f0f9f4;">
                     <div class="fs-2 fw-bold text-wa mb-1" id="nextNumberText" dir="ltr">01147072855</div>
-                    <div class="small text-secondary fw-bold mb-3" id="nextCenterNameText"></div>
+                    <div class="small text-success fw-bold mb-3" id="nextCenterNameText"></div>
                     <button class="btn btn-whatsapp btn-lg w-100 py-3 fw-bold shadow" onclick="sendNext()"><i class="fa-brands fa-whatsapp fs-3 align-middle me-2"></i> إرسال للرقم التالي</button>
                 </div>
                 <div class="d-flex justify-content-between text-muted small mt-2 pt-2 border-top">
@@ -125,7 +125,7 @@
                     <tr>
                         <th>#</th>
                         <th>رقم الهاتف</th>
-                        <th>اسم المركز / العيادة (اختياري)</th>
+                        <th>اسم المركز / العيادة (يظهر في رسالته فوراً)</th>
                         <th>الشبكة</th>
                         <th>الحالة</th>
                         <th>إجراءات الإرسال</th>
@@ -159,15 +159,15 @@ const defaultPhoneList = [
 const defaultTemplates = [
     {
         title: "الصيغة 1: خطوة نحو التميز (مختصرة)",
-        text: "السلام عليكم، تحية لإدارة {المركز}،\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة:"
+        text: "السلام عليكم، تحية لإدارة {المركز}\n\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي لإدارة جلسات المرضى والحسابات وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\n\nشاهدوا النظام في دقيقة واحدة"
     },
     {
         title: "الصيغة 2: شريك نجاحكم الرقمي (رسمية)",
-        text: "تحية طيبة لإدارة {المركز}،\n\nيسعدنا في ريكوفا كلود (Recova Cloud) أن نكون شركاء نجاحكم في التطوير الرقمي؛ عبر نظام سحابي ذكي يجمع إدارة الجلسات، ملفات المرضى، والحسابات في شاشة واحدة تتابعونها من أي مكان.\n\nجولة سريعة بالصور والفيديو داخل النظام:"
+        text: "تحية طيبة لإدارة {المركز}\n\nيسعدنا في ريكوفا كلود أن نكون شركاء نجاحكم في التطوير الرقمي عبر نظام سحابي ذكي يجمع إدارة الجلسات وملفات المرضى والحسابات في شاشة واحدة تتابعونها من أي مكان.\n\nجولة سريعة بالصور والفيديو داخل النظام"
     },
     {
         title: "الصيغة 3: نقاط سريعة (مميزات النظام)",
-        text: "أهلاً بكم، إدارة {المركز}،\n\nنشارككم النجاح ونسهل عليكم الإدارة اليومية مع نظام ريكوفا كلود السحابي:\n- متابعة دقيقة للجلسات والملفات الطبية.\n- ضبط كامل للحسابات وصلاحيات الموظفين.\n- تقارير لحظية من الموبايل في أي وقت.\n\nشاهدوا شاشات النظام والفيديو التعريفي هنا:"
+        text: "أهلاً بكم، إدارة {المركز}\n\nنشارككم النجاح ونسهل عليكم الإدارة اليومية مع نظام ريكوفا كلود السحابي:\n- متابعة دقيقة للجلسات والملفات الطبية\n- ضبط كامل للحسابات وصلاحيات الموظفين\n- تقارير لحظية من الموبايل في أي وقت\n\nشاهدوا شاشات النظام والفيديو التعريفي هنا"
     }
 ];
 
@@ -185,9 +185,10 @@ try { sentStatus = JSON.parse(localStorage.getItem('recova_sent')) || {}; } catc
 let centerNames = {};
 try { centerNames = JSON.parse(localStorage.getItem('recova_centers')) || {}; } catch(e) { centerNames = {}; }
 
+// استخدام مفتاح جديد v3 لضمان مسح أي قوالب قديمة سببت مشكلة الرابط
 let messageTemplates = [];
 try {
-    const savedTpls = JSON.parse(localStorage.getItem('recova_templates_v2'));
+    const savedTpls = JSON.parse(localStorage.getItem('recova_templates_v3'));
     messageTemplates = (Array.isArray(savedTpls) && savedTpls.length > 0 && savedTpls[0].text) ? savedTpls : JSON.parse(JSON.stringify(defaultTemplates));
 } catch (e) {
     messageTemplates = JSON.parse(JSON.stringify(defaultTemplates));
@@ -207,7 +208,7 @@ function saveState() {
     localStorage.setItem('recova_phones', JSON.stringify(phoneList));
     localStorage.setItem('recova_sent', JSON.stringify(sentStatus));
     localStorage.setItem('recova_centers', JSON.stringify(centerNames));
-    localStorage.setItem('recova_templates_v2', JSON.stringify(messageTemplates));
+    localStorage.setItem('recova_templates_v3', JSON.stringify(messageTemplates));
 }
 
 function restoreDefaultNumbers() {
@@ -288,7 +289,7 @@ function addNewTemplate() {
 
     messageTemplates.push({
         title: customTitle.trim() || `صيغة خاصة رقم ${newNumber}`,
-        text: "السلام عليكم، تحية طيبة لإدارة {المركز}،\n\nاكتب نص رسالتك الجديدة هنا..."
+        text: "السلام عليكم، تحية طيبة لإدارة {المركز}\n\nاكتب نص رسالتك الجديدة هنا..."
     });
     saveState();
     renderTemplateDropdown((messageTemplates.length - 1).toString());
@@ -325,7 +326,8 @@ function updateCenterName(num, value) {
     centerNames[num] = value.trim();
     saveState();
     updateStats();
-    updatePreview();
+    // تحديث المعاينة فوراً بالاسم الذي تكتبه الآن لتتأكد من ظهوره
+    document.getElementById('msgPreview').innerText = getMessageText(value.trim());
 }
 
 function getNetworkInfo(num) {
@@ -338,7 +340,7 @@ function getNetworkInfo(num) {
 
 function getMessageText(customCenter = "", templateIndexOverride = null) {
     const defaultCenter = document.getElementById('targetCenter').value.trim();
-    const chosenCenter = customCenter || defaultCenter || "المركز";
+    const chosenCenter = (customCenter && customCenter.trim() !== "") ? customCenter.trim() : (defaultCenter || "المركز");
     
     const sel = document.getElementById('templateSelect').value;
     let baseText = "";
@@ -349,13 +351,22 @@ function getMessageText(customCenter = "", templateIndexOverride = null) {
         baseText = document.getElementById('customTemplateText').value;
     }
 
-    let processedBody = baseText.replace(/\{المركز\}/g, chosenCenter).trim();
-    const rawLink = document.getElementById('appLink').value.trim();
-    
-    // وضع الرابط صافي تماماً في نهاية الرسالة بدون أي رموز مخفية أو نصوص عربية بعده
-    const cleanLink = rawLink ? `\n\n${rawLink}` : "";
+    // تنظيف النص من أي محارف خفية قد تسبب إزاحة تلوين الرابط في واتساب ويب
+    let cleanBody = baseText.replace(/[\u200B-\u200F\u202A-\u202E]/g, '').trim();
 
-    return `${processedBody}${cleanLink}`;
+    // استبدال ذكي لكلمة {المركز} أو "إدارة المركز" باسم المركز المخصص
+    if (cleanBody.includes("{المركز}")) {
+        cleanBody = cleanBody.replace(/\{المركز\}/g, chosenCenter);
+    } else if (chosenCenter !== "المركز") {
+        cleanBody = cleanBody.replace(/إدارة المركز/g, `إدارة ${chosenCenter}`);
+    }
+
+    const rawLink = document.getElementById('appLink').value.replace(/[\u200B-\u200F\u202A-\u202E]/g, '').trim();
+    
+    // وضع الرابط في سطر منفصل تماماً ومسبوق بسطر فارغ ومسافة قياسية لضمان تلوينه بالكامل في واتساب ويب
+    const cleanLink = rawLink ? `\n\n${rawLink}\n` : "";
+
+    return `${cleanBody}${cleanLink}`;
 }
 
 function updatePreview() {
@@ -419,6 +430,7 @@ function renderTable() {
             <td class="fw-bold fs-6" dir="ltr">${num}</td>
             <td>
                 <input type="text" class="form-control form-control-sm center-input border-success" 
+                    id="center_input_${index}"
                     placeholder="اكتب اسم المركز..." 
                     value="${savedCenter.replace(/"/g, '&quot;')}" 
                     oninput="updateCenterName('${num}', this.value)">
@@ -426,10 +438,10 @@ function renderTable() {
             <td><span class="badge badge-net ${net.class}">${net.name}</span></td>
             <td>${isSent ? '<span class="badge bg-success">تم الإرسال ✅</span>' : '<span class="badge bg-warning text-dark">في الانتظار</span>'}</td>
             <td>
-                <button class="btn btn-sm btn-whatsapp me-1 fw-bold" onclick="sendWhatsApp('${num}')"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+                <button class="btn btn-sm btn-whatsapp me-1 fw-bold" onclick="sendWhatsApp('${num}', ${index})"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
                 ${isLandline 
                     ? `<a href="tel:${num}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-phone"></i> اتصال</a>` 
-                    : `<button class="btn btn-sm btn-outline-dark" onclick="sendSMS('${num}')"><i class="fa-solid fa-envelope"></i> SMS</button>`
+                    : `<button class="btn btn-sm btn-outline-dark" onclick="sendSMS('${num}', ${index})"><i class="fa-solid fa-envelope"></i> SMS</button>`
                 }
             </td>
         `;
@@ -453,18 +465,29 @@ function updateStats() {
     if (currentIndex < phoneList.length) {
         const nextNum = phoneList[currentIndex];
         document.getElementById('nextNumberText').innerText = nextNum;
-        document.getElementById('nextCenterNameText').innerText = centerNames[nextNum] ? `(${centerNames[nextNum]})` : "(بدون اسم مركز مخصص)";
+        document.getElementById('nextCenterNameText').innerText = centerNames[nextNum] ? `المركز: (${centerNames[nextNum]})` : "(بدون اسم مركز مخصص)";
     } else {
         document.getElementById('nextNumberText').innerText = "تم إرسال جميع الأرقام 🎉";
         document.getElementById('nextCenterNameText').innerText = "";
     }
 }
 
-function sendWhatsApp(num) {
+function sendWhatsApp(num, rowIndex = null) {
     const intl = "20" + num.substring(1);
-    const customCenter = centerNames[num] || "";
+    
+    // قراءة اسم المركز مباشرة من خانة الجدول لضمان التقاط أي اسم كتبته للتو بنسبة 100%
+    let customCenter = centerNames[num] || "";
+    if (rowIndex !== null) {
+        const inputEl = document.getElementById(`center_input_${rowIndex}`);
+        if (inputEl && inputEl.value.trim() !== "") {
+            customCenter = inputEl.value.trim();
+            centerNames[num] = customCenter;
+        }
+    }
+
     const msg = encodeURIComponent(getMessageText(customCenter));
-    window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
+    // استخدام api.whatsapp.com بدلاً من wa.me لمنع خطأ إعادة التوجيه وتقطيع الروابط في واتساب ويب
+    window.open(`https://api.whatsapp.com/send?phone=${intl}&text=${msg}`, '_blank');
     
     sentStatus[num] = true;
     rotateCounter++;
@@ -475,8 +498,15 @@ function sendWhatsApp(num) {
     renderTable();
 }
 
-function sendSMS(num) {
-    const customCenter = centerNames[num] || "";
+function sendSMS(num, rowIndex = null) {
+    let customCenter = centerNames[num] || "";
+    if (rowIndex !== null) {
+        const inputEl = document.getElementById(`center_input_${rowIndex}`);
+        if (inputEl && inputEl.value.trim() !== "") {
+            customCenter = inputEl.value.trim();
+            centerNames[num] = customCenter;
+        }
+    }
     const msg = encodeURIComponent(getMessageText(customCenter));
     window.open(`sms:${num}?body=${msg}`, '_self');
     
@@ -488,7 +518,7 @@ function sendSMS(num) {
 
 function sendNext() {
     if (currentIndex < phoneList.length) {
-        sendWhatsApp(phoneList[currentIndex]);
+        sendWhatsApp(phoneList[currentIndex], currentIndex);
     }
 }
 
