@@ -31,14 +31,20 @@
 </nav>
 
 <div class="container">
-    <!-- الرسالة وإعدادات الإرسال -->
+    <!-- إعدادات الرسالة -->
     <div class="row">
         <div class="col-md-7">
             <div class="card p-3">
-                <h5 class="card-title text-primary"><i class="fa-solid fa-comment-dots"></i> نص الرسالة المعتمد</h5>
-                <div class="mb-3">
-                    <label class="form-label font-weight-bold">اسم المرسل:</label>
-                    <input type="text" id="senderName" class="form-control" value="سمير خليل" oninput="updatePreview()">
+                <h5 class="card-title text-primary"><i class="fa-solid fa-comment-dots"></i> إعدادات الرسالة</h5>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label font-weight-bold">اسم المرسل:</label>
+                        <input type="text" id="senderName" class="form-control" value="سمير خليل" oninput="updatePreview()">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label font-weight-bold">اسم المركز / العيادة المستهدفة:</label>
+                        <input type="text" id="targetCenter" class="form-control" placeholder="اكتب اسم المركز هنا..." oninput="updatePreview()">
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">رابط النظام التجريبي:</label>
@@ -67,9 +73,25 @@
         </div>
     </div>
 
+    <!-- زر إضافة واستيراد أرقام جديدة -->
+    <div class="card p-3 bg-light border-primary">
+        <h5 class="card-title text-primary"><i class="fa-solid fa-user-plus me-2"></i> إضافة / استيراد أرقام جديدة بالقائمة</h5>
+        <div class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <textarea id="newNumbersInput" class="form-control" rows="2" placeholder="ضع الأرقام الجديدة هنا (يمكنك لصق عدة أرقام من إكسيل أو الواتساب مرة واحدة)..."></textarea>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary w-100 py-3 fw-bold" onclick="addNewNumbers()"><i class="fa-solid fa-plus-circle me-1"></i> إضافة للقائمة</button>
+            </div>
+        </div>
+    </div>
+
     <!-- جدول الأرقام -->
     <div class="card p-3 mt-3">
-        <h5 class="card-title text-dark mb-3"><i class="fa-solid fa-list-check"></i> قائمة الأرقام (71 رقم)</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title text-dark m-0"><i class="fa-solid fa-list-check me-2"></i> قائمة الأرقام</h5>
+            <span class="badge bg-secondary" id="tableNumbersCount">71 رقم</span>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-dark">
@@ -89,7 +111,7 @@
 </div>
 
 <script>
-const rawNumbers = [
+let phoneList = [
     "01147072855", "01017733770", "01006863612", "01028891550", "01028236335",
     "01023352112", "01018433861", "01110681020", "01558155965", "01202211862",
     "01277299002", "01011179397", "0221223496", "01029896666", "01070555556",
@@ -119,19 +141,51 @@ function getNetworkInfo(num) {
 }
 
 function getMessageText() {
+    const center = document.getElementById('targetCenter').value.trim();
+    const centerText = center ? ` ${center}` : "";
     const link = document.getElementById('appLink').value;
-    return `السلام عليكم، تحية لإدارة \nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\nشاهدوا النظام في دقيقة واحدة:\n${link}`;
+    return `السلام عليكم، تحية لإدارة${centerText}\nخطوة جديدة نحو التميز نشارككم فيها النجاح مع نظام ريكوفا كلود السحابي؛ لإدارة جلسات المرضى، الحسابات، وفريق العمل بمرونة وأمان تام من الموبايل أو الكمبيوتر.\nشاهدوا النظام في دقيقة واحدة:\n${link}`;
 }
 
 function updatePreview() {
     document.getElementById('msgPreview').innerText = getMessageText();
 }
 
+function addNewNumbers() {
+    const rawInput = document.getElementById('newNumbersInput').value;
+    if (!rawInput.trim()) return;
+
+    const extracted = rawInput.match(/\d+/g);
+    if (!extracted) {
+        alert("لم يتم العثور على أرقام صحيحة!");
+        return;
+    }
+
+    let addedCount = 0;
+    extracted.forEach(num => {
+        let cleaned = num.trim();
+        if (cleaned.length === 10 && !cleaned.startsWith("0")) {
+            cleaned = "0" + cleaned;
+        }
+        if (!phoneList.includes(cleaned)) {
+            phoneList.push(cleaned);
+            addedCount++;
+        }
+    });
+
+    document.getElementById('newNumbersInput').value = '';
+    alert(`تمت إضافة ${addedCount} رقم جديد بنجاح!`);
+    renderTable();
+}
+
 function renderTable() {
     const tbody = document.getElementById('numbersTableBody');
     tbody.innerHTML = '';
     
-    rawNumbers.forEach((num, index) => {
+    document.getElementById('totalCountBadge').innerText = `${phoneList.length} رقم`;
+    document.getElementById('tableNumbersCount').innerText = `${phoneList.length} رقم`;
+
+    phoneList.forEach((num, index) => {
         const net = getNetworkInfo(num);
         const intl = "+20" + num.substring(1);
         const isSent = sentStatus[num];
@@ -157,14 +211,14 @@ function renderTable() {
 function updateStats() {
     const sentCount = Object.keys(sentStatus).length;
     document.getElementById('sentCount').innerText = sentCount;
-    document.getElementById('remainingCount').innerText = rawNumbers.length - sentCount;
+    document.getElementById('remainingCount').innerText = phoneList.length - sentCount;
     
-    while(currentIndex < rawNumbers.length && sentStatus[rawNumbers[currentIndex]]) {
+    while(currentIndex < phoneList.length && sentStatus[phoneList[currentIndex]]) {
         currentIndex++;
     }
     
-    if (currentIndex < rawNumbers.length) {
-        document.getElementById('nextNumberText').innerText = rawNumbers[currentIndex];
+    if (currentIndex < phoneList.length) {
+        document.getElementById('nextNumberText').innerText = phoneList[currentIndex];
     } else {
         document.getElementById('nextNumberText').innerText = "تم إرسال جميع الأرقام 🎉";
     }
@@ -186,8 +240,8 @@ function sendSMS(num, index) {
 }
 
 function sendNext() {
-    if (currentIndex < rawNumbers.length) {
-        sendWhatsApp(rawNumbers[currentIndex], currentIndex);
+    if (currentIndex < phoneList.length) {
+        sendWhatsApp(phoneList[currentIndex], currentIndex);
     }
 }
 
